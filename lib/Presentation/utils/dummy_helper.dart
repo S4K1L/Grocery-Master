@@ -1,5 +1,5 @@
-import '../app/data/models/category_model.dart';
-import '../app/data/models/product_model.dart';
+import '../Screens/data/models/category_model.dart';
+import '../Screens/data/models/product_model.dart';
 import 'constants.dart';
 
 class DummyHelper {

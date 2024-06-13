@@ -2,13 +2,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'Presentation/app/data/local/my_shared_pref.dart';
-import 'Presentation/app/routes/app_pages.dart';
+import 'Presentation/Screens/data/local/my_shared_pref.dart';
+import 'Presentation/Screens/routes/app_pages.dart';
 import 'Presentation/config/theme/my_theme.dart';
 import 'Presentation/config/translations/localization_service.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await MySharedPref.init();
 
   runApp(

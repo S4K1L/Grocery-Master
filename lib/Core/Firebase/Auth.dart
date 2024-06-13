@@ -1,62 +1,64 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../Repository_and_Authentication/data/custom_user.dart';
-
-class AuthService {
+class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Converts Firebase user to Custom User
-  CustomUser? _convertUser(User? user) {
-    if (user == null) {
-      return null;
-    } else {
-      return CustomUser(uid: user.uid, email: user.email);
-    }
-  }
-
-  // Setting up stream
-  // This continuously listens to auth changes (that is login or log out)
-  // This will return the user if logged in or return null if not
-  Stream<CustomUser?> get streamUser {
-    return _auth.authStateChanges().map((User? user) => _convertUser(user));
-  }
-
-  // Register part with email and password
-  Future<CustomUser?> registerUser(String email, String password) async {
+  Future<User?> signUpWithEmailAndPassword(String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      User? user = result.user;
-      return _convertUser(user);
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      return credential.user;
     } catch (e) {
-      print("Error in registering: $e");
+      print("Some Error Found");
       return null;
     }
   }
 
-  // Login part with email and password
-  Future<CustomUser?> loginUser(String email, String password) async {
+  Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      User? user = result.user;
-      return _convertUser(user);
+      UserCredential credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return credential.user;
     } catch (e) {
-      print("Error in login: $e");
+      print(e.toString());
       return null;
     }
   }
-
-  Future<Map<String, dynamic>> getUserData(String uid) async {
-    try {
-      DocumentSnapshot userData = await _firestore.collection('users').doc(uid).get();
-      return userData.data() as Map<String, dynamic>;
-    } catch (e) {
-      print('Error fetching user data: $e');
-      return {};
-    }
-  }
-
 }
+
+class UserDataUploader {
+  static Future<void> uploadUserData({
+    required String? name,
+    required String? phone,
+    required String? email,
+    required String? password,
+    required String? address,
+  }) async {
+    try {
+      User? firebaseUser = FirebaseAuth.instance.currentUser;
+
+      if (firebaseUser != null) {
+        CollectionReference collRef =
+        FirebaseFirestore.instance.collection("users");
+        // Explicitly set the document ID to be the same as the user's UID
+        DocumentReference docRef = collRef.doc(firebaseUser.uid);
+
+        await docRef.set({
+          "name": name,
+          "phone": phone,
+          "email": email,
+          "password": password,
+          "address": address,
+          "type": 'user',
+          "uid": firebaseUser.uid,
+        });
+
+        print("Data upload successful. Document ID (UID): ${docRef.id}");
+      } else {
+        print("User is null. Unable to upload data.");
+      }
+    } catch (e) {
+      print("Error uploading user data: $e");
+    }
+  }
+}
+
