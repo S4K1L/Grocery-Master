@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266707784168",
+    "project_id": "grocery-master-c0726",
+    "storage_bucket": "grocery-master-c0726.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266707784168:android:5e23863166fdcaa08ed45d",
+        "android_client_info": {
+          "package_name": "com.example.grocerymaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MqwrAGWxGVmyecsuKgWjS-XzgkxhN4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
