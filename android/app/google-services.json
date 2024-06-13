@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:266707784168:android:a497925d1c34a1c18ed45d",
+        "android_client_info": {
+          "package_name": "com.example.groceryma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MqwrAGWxGVmyecsuKgWjS-XzgkxhN4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:266707784168:android:5e23863166fdcaa08ed45d",
         "android_client_info": {
           "package_name": "com.example.grocerymaster"
