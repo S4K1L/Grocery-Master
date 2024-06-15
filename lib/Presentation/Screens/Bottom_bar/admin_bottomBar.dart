@@ -8,6 +8,7 @@ import '../profile/views/profile_view.dart';
 
 class AdminBottom extends StatefulWidget {
   const AdminBottom({super.key});
+  static String routeName = 'AdminBottom';
 
   @override
   State<AdminBottom> createState() => _BottomBarState();

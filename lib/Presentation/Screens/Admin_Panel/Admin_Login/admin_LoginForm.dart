@@ -1,29 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Admin_HomePage/Admin_Home_Screen.dart';
-import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Admin_Login/admin_login.dart';
+import 'package:grocerymaster/Presentation/Screens/login_screen/Login/login_screen.dart';
 import '../../../../../../Core/Firebase/Auth.dart';
 import '../../../../../../Theme/const.dart';
-import '../../../../../../Widgets/components/already_have_an_account_acheck.dart';
 import '../../../../../../Widgets/components/constants.dart';
-import '../../../Bottom_bar/admin_bottomBar.dart';
-import '../../../Bottom_bar/user_bottombar.dart';
-import '../../../User_HomePage/user_Home_Screen.dart';
-import '../../../routes/app_pages.dart';
-import '../../Signup/signup_screen.dart';
+import '../../Bottom_bar/admin_bottomBar.dart';
 
-class LoginForm extends StatefulWidget {
-  const LoginForm({
+class AdminLoginForm extends StatefulWidget {
+  const AdminLoginForm({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  State<AdminLoginForm> createState() => _AdminLoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _AdminLoginFormState extends State<AdminLoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuthService _auth = FirebaseAuthService();
   final TextEditingController _emailController = TextEditingController();
@@ -67,11 +60,11 @@ class _LoginFormState extends State<LoginForm> {
     var documentSnapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     if (documentSnapshot.exists) {
       String userType = documentSnapshot.get('type');
-      if (userType == "user") {
-        _showSuccessSnackbar("Welcome to Grocery Master");
+      if (userType == "admin") {
+        _showSuccessSnackbar("Welcome Admin");
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const UserBottom()),
+          MaterialPageRoute(builder: (context) => const AdminBottom()),
               (Route<dynamic> route) => false,
         );
       } else {
@@ -81,6 +74,7 @@ class _LoginFormState extends State<LoginForm> {
       _showErrorMessage("Some error in logging in!");
     }
   }
+
 
   void _showSuccessSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -193,19 +187,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             const SizedBox(height: defaultPadding),
-            AlreadyHaveAnAccountCheck(
-              press: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const SignUpScreen();
-                    },
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 10,),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 60),
               child: TextButton(onPressed: (){
@@ -213,13 +194,13 @@ class _LoginFormState extends State<LoginForm> {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return AdminLoginScreen();
+                      return LoginScreen();
                     },
                   ),
                 );
               }, child: Row(
                 children: [
-                  Text('Admin? ',style: TextStyle(color: Colors.green),),
+                  Text('User? ',style: TextStyle(color: Colors.green),),
                   Text('Log in here!',style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green
@@ -227,7 +208,6 @@ class _LoginFormState extends State<LoginForm> {
                 ],
               )),
             ),
-
           ],
         ),
       ),

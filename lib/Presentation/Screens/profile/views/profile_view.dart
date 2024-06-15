@@ -43,6 +43,11 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     getUserData(); // Call the function to fetch user data when the screen initializes
@@ -70,8 +75,8 @@ class _ProfileViewState extends State<ProfileView> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: kPrimaryColor),
                     ),
                     Spacer(),
-                    IconButton(onPressed: (){
-                      FirebaseAuth.instance.signOut();
+                    IconButton(onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => WelcomeView()),
@@ -125,8 +130,8 @@ class _ProfileViewState extends State<ProfileView> {
                             value: userData['address'] ?? '',
                           ),
                           SizedBox(height: 20),
-                          CustomButton(onPress: (){
-                            FirebaseAuth.instance.signOut();
+                          CustomButton(onPress: () async {
+                            await FirebaseAuth.instance.signOut();
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => WelcomeView()),
