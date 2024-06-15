@@ -39,32 +39,26 @@ class _OrderHistoryState extends State<OrderHistory> {
         backgroundColor: Colors.transparent,
       ),
       drawer: UserDrawer(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            FutureBuilder<List<Order>>(
-              future: _getDeliveredOrders(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No delivered orders.'));
-                } else {
-                  final orders = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      final order = orders[index];
-                      return _buildOrderItem(order);
-                    },
-                  );
-                }
+      body: FutureBuilder<List<Order>>(
+        future: _getDeliveredOrders(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No delivered orders.'));
+          } else {
+            final orders = snapshot.data!;
+            return ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return _buildOrderItem(order);
               },
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
   }
