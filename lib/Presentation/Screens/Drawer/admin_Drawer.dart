@@ -5,10 +5,18 @@ import '../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../Theme/const.dart';
 import '../Admin_Panel/Create_Menu/create_menu.dart';
 import '../Bottom_bar/admin_bottomBar.dart';
+import '../welcome/views/welcome_view.dart';
 
 
-class AdminDrawer extends StatelessWidget {
+class AdminDrawer extends StatefulWidget {
   const AdminDrawer({super.key});
+
+  @override
+  State<AdminDrawer> createState() => _AdminDrawerState();
+}
+
+class _AdminDrawerState extends State<AdminDrawer> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,21 +69,6 @@ class AdminDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const CreateMenu()),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildDrawerButton(
-                context,
-                icon: Icons.logout,
-                label: 'Logout',
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
                   );
                 },
               ),

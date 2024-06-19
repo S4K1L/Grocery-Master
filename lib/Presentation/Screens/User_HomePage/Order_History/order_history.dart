@@ -27,12 +27,10 @@ class _OrderHistoryState extends State<OrderHistory> {
               ),
             ),
             const Spacer(),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.history,
-                  color: Colors.green[500],
-                ))
+            Icon(
+              Icons.history,
+              color: Colors.green[500],
+            )
           ],
         ),
         centerTitle: true,

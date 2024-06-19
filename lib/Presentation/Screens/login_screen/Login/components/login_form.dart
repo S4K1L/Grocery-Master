@@ -1,17 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Admin_HomePage/Admin_Home_Screen.dart';
-import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Admin_Login/admin_login.dart';
 import '../../../../../../Core/Firebase/Auth.dart';
 import '../../../../../../Theme/const.dart';
 import '../../../../../../Widgets/components/already_have_an_account_acheck.dart';
 import '../../../../../../Widgets/components/constants.dart';
 import '../../../Bottom_bar/admin_bottomBar.dart';
 import '../../../Bottom_bar/user_bottombar.dart';
-import '../../../User_HomePage/user_Home_Screen.dart';
-import '../../../routes/app_pages.dart';
 import '../../Signup/signup_screen.dart';
 
 class LoginForm extends StatefulWidget {
@@ -28,6 +23,7 @@ class _LoginFormState extends State<LoginForm> {
   final FirebaseAuthService _auth = FirebaseAuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -45,8 +41,12 @@ class _LoginFormState extends State<LoginForm> {
         User? user = await _auth.signInWithEmailAndPassword(email, password);
 
         if (user != null) {
-          route();
-          print("User is successfully signed in");
+          Future.microtask(() {
+            if (mounted) {
+              route();
+              print("User is successfully signed in");
+            }
+          });
         } else {
           _showErrorMessage("Email or Password Incorrect");
           print("Unexpected error: User is null");
@@ -69,12 +69,25 @@ class _LoginFormState extends State<LoginForm> {
       String userType = documentSnapshot.get('type');
       if (userType == "user") {
         _showSuccessSnackbar("Welcome to Grocery Master");
+        Future.microtask(() {
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const UserBottom()),
+                  (Route<dynamic> route) => false,
+            );
+          }
+        });
+      }
+      else if (userType == "admin") {
+        _showSuccessSnackbar("Welcome Admin");
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const UserBottom()),
+          MaterialPageRoute(builder: (context) => const AdminBottom()),
               (Route<dynamic> route) => false,
         );
-      } else {
+      }
+      else {
         _showErrorMessage("Some error in logging in!");
       }
     } else {
@@ -83,60 +96,68 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Row(
-        children: [
-          const Icon(
-            Icons.notifications_active_outlined,
-            color: Colors.green,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
+    Future.microtask(() {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Row(
+            children: [
+              const Icon(
+                Icons.notifications_active_outlined,
                 color: Colors.green,
-                fontSize: 16,
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      backgroundColor: Colors.white,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 6,
-      margin: const EdgeInsets.all(20),
-    ));
+          backgroundColor: Colors.white,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 6,
+          margin: const EdgeInsets.all(20),
+        ));
+      }
+    });
   }
 
   void _showErrorMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
-              ),
+    Future.microtask(() {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 6,
-      ),
-    );
+            backgroundColor: Colors.white,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 6,
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -160,26 +181,51 @@ class _LoginFormState extends State<LoginForm> {
                   child: Icon(Icons.person),
                 ),
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email';
+                }
+                return null;
+              },
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: defaultPadding),
               child: TextFormField(
                 controller: _passwordController,
                 textInputAction: TextInputAction.done,
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 cursorColor: kPrimaryColor,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Password",
-                  hintStyle: TextStyle(color: Colors.green),
-                  prefixIcon: Padding(
+                  hintStyle: const TextStyle(color: Colors.green),
+                  prefixIcon: const Padding(
                     padding: EdgeInsets.all(defaultPadding),
                     child: Icon(Icons.lock),
                   ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters long';
+                  }
+                  return null;
+                },
               ),
             ),
             const SizedBox(height: defaultPadding),
-            Container(
+            SizedBox(
               width: 160,
               height: 40,
               child: ElevatedButton(
@@ -205,29 +251,6 @@ class _LoginFormState extends State<LoginForm> {
                 );
               },
             ),
-            SizedBox(height: 10,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 60),
-              child: TextButton(onPressed: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return AdminLoginScreen();
-                    },
-                  ),
-                );
-              }, child: Row(
-                children: [
-                  Text('Admin? ',style: TextStyle(color: Colors.green),),
-                  Text('Log in here!',style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green
-                  ),),
-                ],
-              )),
-            ),
-
           ],
         ),
       ),

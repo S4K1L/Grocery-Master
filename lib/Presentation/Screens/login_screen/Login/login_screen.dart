@@ -4,9 +4,14 @@ import '../../../../../Widgets/responsive.dart';
 import 'components/login_form.dart';
 import 'components/login_screen_top_image.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Background(
@@ -35,11 +40,16 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class MobileLoginScreen extends StatelessWidget {
+class MobileLoginScreen extends StatefulWidget {
   const MobileLoginScreen({
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<MobileLoginScreen> createState() => _MobileLoginScreenState();
+}
+
+class _MobileLoginScreenState extends State<MobileLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(

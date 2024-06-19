@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grocerymaster/Theme/const.dart';
-import '../../Admin_Panel/Admin_HomePage/manu_model.dart';
 import '../../Drawer/user_Drawer.dart';
+import '../manu_model.dart';
 import 'chekout.dart';
 
 class CartMenuPage extends StatefulWidget {
@@ -59,7 +59,8 @@ class _CartMenuPageState extends State<CartMenuPage> {
           price: doc['price'],
           docId: doc.id,
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
-          isFav: true, // Since it's already in the card collection
+          isFav: true,
+          details: doc['details'], // Since it's already in the card collection
         );
       }).toList();
     });
@@ -89,6 +90,14 @@ class _CartMenuPageState extends State<CartMenuPage> {
         _quantities[menu.docId] = 1;
         _storeCheckoutData(menu, 1);
       }
+
+      // Show Snackbar message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${menu.name} added to cart!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     });
   }
 
@@ -101,6 +110,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
         'menuId': menu.docId,
         'name': menu.name,
         'price': menu.price,
+        'details': menu.details,
         'quantity': quantity,
         'imageUrl': menu.imageUrl,
         'moreImagesUrl': menu.moreImagesUrl,

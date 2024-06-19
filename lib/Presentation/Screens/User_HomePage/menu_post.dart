@@ -2,8 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:grocerymaster/Presentation/Screens/User_HomePage/manu_model.dart';
+import 'package:grocerymaster/Presentation/Screens/User_HomePage/post_details/details_screen.dart';
 import 'Search_button/custom_search.dart';
-import 'manu_model.dart';
 
 class MenuPost extends StatefulWidget {
   const MenuPost({super.key});
@@ -13,7 +14,6 @@ class MenuPost extends StatefulWidget {
 }
 
 class _MenuPostState extends State<MenuPost> {
-  late StreamSubscription<List<MenuModel>> _subscription;
   late Stream<List<MenuModel>> _menuStream;
   String _searchText = '';
   final Map<String, bool> _favorites = {};
@@ -25,12 +25,6 @@ class _MenuPostState extends State<MenuPost> {
     super.initState();
     _user = _auth.currentUser;
     _menuStream = _fetchMenuFromFirebase();
-  }
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
   }
 
   void _onSearch(String searchText) {
@@ -47,7 +41,11 @@ class _MenuPostState extends State<MenuPost> {
 
         bool isFav = false;
         if (_user != null) {
-          FirebaseFirestore.instance.collection('card').where('userUid', isEqualTo: _user!.uid).where('docId', isEqualTo: doc.id).get().then((value) {
+          FirebaseFirestore.instance.collection('cart')
+              .where('userUid', isEqualTo: _user!.uid)
+              .where('docId', isEqualTo: doc.id)
+              .get()
+              .then((value) {
             if (value.docs.isNotEmpty) {
               setState(() {
                 _favorites[doc.id] = true;
@@ -63,6 +61,7 @@ class _MenuPostState extends State<MenuPost> {
           docId: doc.id,
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
           isFav: isFav,
+          details: doc['details'],
         );
       }).toList();
     });
@@ -70,85 +69,96 @@ class _MenuPostState extends State<MenuPost> {
 
   Widget _buildMenu(BuildContext context, MenuModel menu) {
     bool isFavorite = _favorites[menu.docId] ?? false;
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.green[200],
-        ),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-        Stack(
-        children: [
-        ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.network(
-          menu.imageUrl,
-          height: 150,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-      ),
-      Positioned(
-        right: 10,
-        top: 10,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailsScreen(menu: menu),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
         child: Container(
-          width: 40,
-          height: 40,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.green.withOpacity(0.9),
+            color: Colors.green[200],
           ),
-          child: IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite,
-              color: isFavorite ? Colors.red : Colors.white,
-            ),
-            onPressed: () {
-              _toggleFavorite(menu);
-            },
-          ),
-        ),
-      ),
-      ],
-    ),
-    Expanded(
-    child: Padding(
-      padding: const EdgeInsets.only(left: 10, top: 3),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-          children: [
-            Text(
-              menu.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      menu.imageUrl,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.green.withOpacity(0.9),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : Colors.white,
+                        ),
+                        onPressed: () {
+                          _toggleFavorite(menu);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Text(
-              'RM ${menu.price}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Colors.black,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 3),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          menu.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'RM ${menu.price}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    ),
-    ),
             ],
+          ),
         ),
       ),
     );
   }
 
-  void _toggleFavorite(MenuModel menu) {
+  void _toggleFavorite(MenuModel menu) async {
     if (_user == null) {
       // User not logged in, handle appropriately
       return;
@@ -160,25 +170,25 @@ class _MenuPostState extends State<MenuPost> {
     });
 
     if (_favorites[menu.docId]!) {
-      FirebaseFirestore.instance.collection('cart').add({
+      await FirebaseFirestore.instance.collection('cart').add({
         'imageUrl': menu.imageUrl,
         'name': menu.name,
         'price': menu.price,
+        'details': menu.details,
         'docId': menu.docId,
         'moreImagesUrl': menu.moreImagesUrl,
         'userUid': userUid,
       });
     } else {
-      FirebaseFirestore.instance
+      final querySnapshot = await FirebaseFirestore.instance
           .collection('cart')
           .where('docId', isEqualTo: menu.docId)
           .where('userUid', isEqualTo: userUid)
-          .get()
-          .then((querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          doc.reference.delete();
-        }
-      });
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
     }
   }
 
@@ -201,10 +211,10 @@ class _MenuPostState extends State<MenuPost> {
                   child: Text('Error: ${snapshot.error}'),
                 );
               } else {
-                List<MenuModel>? campaigns = snapshot.data;
-                if (campaigns != null && campaigns.isNotEmpty) {
-                  List<MenuModel> filteredMenu = campaigns
-                      .where((campaign) => _matchesSearchText(campaign))
+                List<MenuModel>? menus = snapshot.data;
+                if (menus != null && menus.isNotEmpty) {
+                  List<MenuModel> filteredMenu = menus
+                      .where((menu) => _matchesSearchText(menu))
                       .toList();
                   if (filteredMenu.isNotEmpty) {
                     return GridView.builder(
@@ -239,13 +249,13 @@ class _MenuPostState extends State<MenuPost> {
       ],
     );
   }
-  bool _matchesSearchText(MenuModel campaign) {
+
+  bool _matchesSearchText(MenuModel menu) {
     String searchText = _searchText.toLowerCase();
     List<String> searchTerms = searchText.split(' ');
 
     return searchTerms.every((term) =>
-    campaign.name.toLowerCase().contains(term) ||
-        campaign.price.toString().contains(term));
+    menu.name.toLowerCase().contains(term) ||
+        menu.price.toString().contains(term));
   }
 }
-

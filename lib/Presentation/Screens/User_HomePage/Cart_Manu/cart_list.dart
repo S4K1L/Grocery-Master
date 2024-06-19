@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../Admin_Panel/Admin_HomePage/manu_model.dart';
+import '../manu_model.dart';
 import 'chekout.dart';
 
 
@@ -47,7 +47,8 @@ class _CartListState extends State<CartList> {
           price: doc['price'],
           docId: doc.id,
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
-          isFav: false, // Change this if needed
+          isFav: false,
+          details: doc['details'], // Change this if needed
         );
       }).toList();
     });

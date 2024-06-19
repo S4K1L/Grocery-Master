@@ -32,7 +32,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: [
           SizedBox(height: MediaQuery.of(context).size.height * 0.01),
           Expanded(
-            child: MenuPost(),
+            child: AdminMenuPost(),
           ),
         ],
       ),

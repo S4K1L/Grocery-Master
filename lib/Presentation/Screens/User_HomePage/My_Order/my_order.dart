@@ -27,12 +27,10 @@ class _MyOrdersState extends State<MyOrders> {
               ),
             ),
             const Spacer(),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.shopping_cart,
-                  color: Colors.green[500],
-                ))
+            Icon(
+              Icons.shopping_cart,
+              color: Colors.green[500],
+            )
           ],
         ),
         centerTitle: true,
@@ -157,6 +155,7 @@ class _MyOrdersState extends State<MyOrders> {
       ),
     );
   }
+
 }
 
 class Order {

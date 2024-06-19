@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grocerymaster/Presentation/Screens/login_screen/Login/login_screen.dart';
 import '../../../../../Core/Repository_and_Authentication/custom_buttons.dart';
 import '../../../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../../../Core/Repository_and_Authentication/services/auth.dart';
 import '../../../../../Theme/const.dart';
 import '../../welcome/views/welcome_view.dart';
-
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -22,21 +22,19 @@ class _ProfileViewState extends State<ProfileView> {
   // Function to fetch user data from Firebase
   Future<void> getUserData() async {
     try {
-      // Get the current user's UID from FirebaseAuth
       String userUID = FirebaseAuth.instance.currentUser!.uid;
-      // Fetch user data using the UID
       DocumentSnapshot userDataSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userUID)
           .get();
-      // Convert the fetched data into a Map
       Map<String, dynamic> userDataMap =
       userDataSnapshot.data() as Map<String, dynamic>;
 
-      // Update the userData map and trigger a rebuild
-      setState(() {
-        userData = userDataMap;
-      });
+      if (mounted) {
+        setState(() {
+          userData = userDataMap;
+        });
+      }
     } catch (error) {
       print('Error fetching user data: $error');
     }
@@ -50,7 +48,7 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
-    getUserData(); // Call the function to fetch user data when the screen initializes
+    getUserData();
   }
 
   @override
@@ -67,21 +65,25 @@ class _ProfileViewState extends State<ProfileView> {
               children: [
                 Row(
                   children: [
-                    IconButton(onPressed: (){
-                    }, icon: Icon(Icons.add,color: kTextWhiteColor,)),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.add, color: kTextWhiteColor),
+                    ),
                     Spacer(),
                     Text(
                       "Profile",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: kPrimaryColor),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: kPrimaryColor),
                     ),
                     Spacer(),
-                    IconButton(onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => WelcomeView()),
-                      );
-                    }, icon: Icon(Icons.logout,color: kPrimaryColor,)),
+                    IconButton(
+                      onPressed: () async {
+                        signOut();
+                      },
+                      icon: Icon(Icons.logout, color: kPrimaryColor),
+                    ),
                   ],
                 ),
               ],
@@ -130,13 +132,12 @@ class _ProfileViewState extends State<ProfileView> {
                             value: userData['address'] ?? '',
                           ),
                           SizedBox(height: 20),
-                          CustomButton(onPress: () async {
-                            await FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => WelcomeView()),
-                            );
-                          }, title: "SIGN OUT")
+                          CustomButton(
+                            onPress: () async {
+                              signOut();
+                            },
+                            title: "SIGN OUT",
+                          ),
                         ],
                       ),
                     ),
@@ -148,6 +149,18 @@ class _ProfileViewState extends State<ProfileView> {
         ],
       ),
     );
+  }
+  signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Future.microtask(() {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoginScreen()),
+        );
+      }
+    });
   }
 }
 
@@ -162,11 +175,9 @@ class ProfileDataColumn extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey[300]
-      ),
+          borderRadius: BorderRadius.circular(8), color: Colors.grey[300]),
       child: Padding(
-        padding: const EdgeInsets.only(left: 20,top: 20),
+        padding: const EdgeInsets.only(left: 20, top: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

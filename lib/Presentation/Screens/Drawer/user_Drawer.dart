@@ -8,10 +8,17 @@ import '../User_HomePage/Cart_Manu/cart_menu.dart';
 import '../User_HomePage/My_Order/my_order.dart';
 import '../User_HomePage/Order_History/order_history.dart';
 import '../User_HomePage/user_Home_Screen.dart';
+import '../welcome/views/welcome_view.dart';
 
 
-class UserDrawer extends StatelessWidget {
+class UserDrawer extends StatefulWidget {
   const UserDrawer({super.key});
+
+  @override
+  State<UserDrawer> createState() => _UserDrawerState();
+}
+
+class _UserDrawerState extends State<UserDrawer> {
 
   @override
   Widget build(BuildContext context) {
@@ -93,21 +100,6 @@ class UserDrawer extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const OrderHistory(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildDrawerButton(
-                context,
-                icon: Icons.logout,
-                label: 'Logout',
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
                     ),
                   );
                 },

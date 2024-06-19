@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
-
 import '../../../../Theme/const.dart';
-import '../../Admin_Panel/Admin_HomePage/manu_model.dart';
 import '../../Drawer/user_Drawer.dart';
+import '../manu_model.dart';
 
 class CheckOut extends StatefulWidget {
   final Map<String, int> quantities;
@@ -34,7 +33,7 @@ class _CheckOutState extends State<CheckOut> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: Colors.green,
               ),
             ),
             Spacer(),
@@ -44,7 +43,7 @@ class _CheckOutState extends State<CheckOut> {
                 },
                 icon: const Icon(
                   Icons.shopping_cart,
-                  color: kErrorBorderColor,
+                  color: Colors.green,
                 )),
           ],
         ),
@@ -71,55 +70,45 @@ class _CheckOutState extends State<CheckOut> {
             double deliveryFee = 2.0;
             double total = subTotal + deliveryFee;
 
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/images/welcome.jpg'),
-                    fit: BoxFit.cover,
-                    opacity: 0.3),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: cartItems.length,
-                        itemBuilder: (context, index) {
-                          final item = cartItems[index];
-                          return _buildCartItem(item.menuModel, item.quantity);
-                        },
-                      ),
+            return Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cartItems.length,
+                      itemBuilder: (context, index) {
+                        final item = cartItems[index];
+                        return _buildCartItem(item.menuModel, item.quantity);
+                      },
                     ),
-                    _buildPaymentDetails(subTotal, deliveryFee, total),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 20),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 55,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: Colors.purple[400]),
-                        child: TextButton(
-                          onPressed: () {
-                            _showCheckoutDialog(context, cartItems, total);
-                          },
-                          child: const Text(
-                            'CHECKOUT',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0),
-                          ),
+                  ),
+                  _buildPaymentDetails(subTotal, deliveryFee, total),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 55,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.purple[400]),
+                      child: TextButton(
+                        onPressed: () {
+                          _showCheckoutDialog(context, cartItems, total);
+                        },
+                        child: const Text(
+                          'CHECKOUT',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           }
@@ -165,6 +154,7 @@ class _CheckOutState extends State<CheckOut> {
           docId: doc.id,
           moreImagesUrl: moreImagesUrl.map((url) => url as String).toList(),
           isFav: true,
+          details: data['details'],
         ),
         quantity: quantity,
       );
