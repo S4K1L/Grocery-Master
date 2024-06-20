@@ -27,7 +27,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
             ],
           ),
           //Categories(),
-          HouseDetails(widget.menu),
+          Expanded(child: HouseDetails(widget.menu)),
         ],
       ),
     );
