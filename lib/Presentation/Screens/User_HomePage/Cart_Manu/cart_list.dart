@@ -48,7 +48,9 @@ class _CartListState extends State<CartList> {
           docId: doc.id,
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
           isFav: false,
-          details: doc['details'], // Change this if needed
+          details: doc['details'],
+          category: doc['category'],
+          subDetails: doc['subDetails'],
         );
       }).toList();
     });

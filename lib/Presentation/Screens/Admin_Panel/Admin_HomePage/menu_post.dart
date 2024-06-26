@@ -62,6 +62,8 @@ class _AdminMenuPostState extends State<AdminMenuPost> {
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
           isFav: isFav,
           details: doc['details'],
+          category: doc['category'],
+          subDetails: doc['subDetails'],
         );
       }).toList();
     });

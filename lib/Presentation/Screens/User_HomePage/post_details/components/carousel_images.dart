@@ -45,14 +45,6 @@ class _CarouselImagesState extends State<CarouselImages> {
             },
           ),
         ),
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            widget.imagesListUrl.length,
-                (index) => _buildDot(index),
-          ),
-        ),
       ],
     );
   }

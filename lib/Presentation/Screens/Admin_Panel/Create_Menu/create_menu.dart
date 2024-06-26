@@ -23,10 +23,12 @@ class _CreateMenuState extends State<CreateMenu> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
   TextEditingController _detailsController = TextEditingController();
+  TextEditingController _subDetailsController = TextEditingController();
 
   List<File> _images = [];
   bool _isUploading = false;
   double _uploadProgress = 0.0;
+  String category = '';
 
   Future<void> _getImage() async {
     final picker = ImagePicker();
@@ -53,6 +55,7 @@ class _CreateMenuState extends State<CreateMenu> {
           String name = _nameController.text;
           int? price = int.tryParse(_priceController.text); // Convert price to int
           String details = _detailsController.text;
+          String subDetails = _subDetailsController.text;
 
           List<String> imageUrl = [];
           double totalProgress = 0.0;
@@ -76,6 +79,8 @@ class _CreateMenuState extends State<CreateMenu> {
             "name": name,
             "price": price, // Ensure price is stored as int
             "details": details,
+            "subDetails": subDetails,
+            "category": category,
             "userId": firebaseUser.uid,
             "isFav": false,
             "imageUrl": imageUrl[0],
@@ -166,7 +171,7 @@ class _CreateMenuState extends State<CreateMenu> {
         centerTitle: true,
         title: const Text(
           'Create Manu',
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: Colors.green),
         ),
       ),
       drawer: AdminDrawer(),
@@ -192,6 +197,59 @@ class _CreateMenuState extends State<CreateMenu> {
               _buildInputField(_priceController, 'Price'),
               const SizedBox(height: 16.0),
               _buildInputField(_detailsController, 'Details'),
+              const SizedBox(height: 16.0),
+              _buildInputField(_subDetailsController, 'Sub - Details'),
+              const SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: DropdownButtonFormField<String>(
+                  hint: Text('Category',style: TextStyle(color: Colors.black),),
+                  value: category,
+                  onChanged: (newValue) {
+                    setState(() {
+                      category = newValue!;
+                    });
+                  },
+                  validator: (val) => val!.isEmpty ? 'Select Category' : null,
+                  items: <String>[
+                    '',
+                    'vegetable',
+                    'fruit',
+                    'dairy',
+                    'protein',
+                    'protein',
+                    'grain',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.w300),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    border: InputBorder
+                        .none, // Remove the border of the DropdownButtonFormField
+                  ),
+                ),
+              ),
               const SizedBox(height: 16.0),
               SizedBox(
                 height: 50,
@@ -263,8 +321,7 @@ class _CreateMenuState extends State<CreateMenu> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String labelText,
-      {TextInputType? keyboardType}) {
+  Widget _buildInputField(TextEditingController controller, String labelText, {TextInputType? keyboardType}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

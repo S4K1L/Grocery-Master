@@ -155,6 +155,8 @@ class _CheckOutState extends State<CheckOut> {
           moreImagesUrl: moreImagesUrl.map((url) => url as String).toList(),
           isFav: true,
           details: data['details'],
+          category: doc['category'],
+          subDetails: doc['subDetails'],
         ),
         quantity: quantity,
       );
@@ -236,7 +238,6 @@ class _CheckOutState extends State<CheckOut> {
       final User? user = auth.currentUser;
       if (user == null) return;
 
-      final userUid = user.uid;
       await FirebaseFirestore.instance
           .collection('checkout')
           .doc(docId)

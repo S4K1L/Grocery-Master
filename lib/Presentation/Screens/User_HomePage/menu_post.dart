@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grocerymaster/Presentation/Screens/User_HomePage/manu_model.dart';
 import 'package:grocerymaster/Presentation/Screens/User_HomePage/post_details/details_screen.dart';
+import 'Cart_Manu/menu_button.dart';
 import 'Search_button/custom_search.dart';
 
 class MenuPost extends StatefulWidget {
@@ -16,6 +18,7 @@ class MenuPost extends StatefulWidget {
 class _MenuPostState extends State<MenuPost> {
   late Stream<List<MenuModel>> _menuStream;
   String _searchText = '';
+  String _selectedCategory = '';
   final Map<String, bool> _favorites = {};
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
@@ -41,7 +44,8 @@ class _MenuPostState extends State<MenuPost> {
 
         bool isFav = false;
         if (_user != null) {
-          FirebaseFirestore.instance.collection('cart')
+          FirebaseFirestore.instance
+              .collection('cart')
               .where('userUid', isEqualTo: _user!.uid)
               .where('docId', isEqualTo: doc.id)
               .get()
@@ -62,6 +66,8 @@ class _MenuPostState extends State<MenuPost> {
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
           isFav: isFav,
           details: doc['details'],
+          category: doc['category'],
+          subDetails: doc['subDetails'],
         );
       }).toList();
     });
@@ -78,82 +84,98 @@ class _MenuPostState extends State<MenuPost> {
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.green[200],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      menu.imageUrl,
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+      child: Column(
+        children: [
+          Container(
+            height: 190,
+            width: 150,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white
+            ),
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    menu.imageUrl,
+                    height: 100,
+                    width: MediaQuery.of(context).size.width/2.5,
+                    fit: BoxFit.cover,
                   ),
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.green.withOpacity(0.9),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : Colors.white,
-                        ),
-                        onPressed: () {
-                          _toggleFavorite(menu);
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 3),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          menu.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          'RM ${menu.price}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
+                ),
+                Expanded(
+                  child: Text(
+                    menu.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Text(
+                    menu.subDetails,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20)
+                    ),
+                    color: Colors.lightGreen[600],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: Text(
+                          'RM ${menu.price}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.add_circle_outline_sharp,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: IconButton(
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.white,
+                          ),
+                          onPressed: () {
+                            _toggleFavorite(menu);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -198,7 +220,49 @@ class _MenuPostState extends State<MenuPost> {
       children: [
         SearchField(onSearch: _onSearch),
         const SizedBox(height: 20),
-        Expanded(
+        SizedBox(
+          height: 120, // Adjust the height as needed
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              Row(
+                children: [
+                  MenuButton(logo: 'all', title: 'All', color: Colors.grey, onPress: () {
+                    setState(() {
+                      _selectedCategory = '';
+                    });
+                  }),
+                  MenuButton(logo: 'vegetable', title: 'Veg', color: Colors.green[300]!, onPress: () {
+                    setState(() {
+                      _selectedCategory = 'vegetable';
+                    });
+                  }),
+                  MenuButton(logo: 'fruit', title: 'Fruits', color: Colors.lightGreen[600]!, onPress: () {
+                    setState(() {
+                      _selectedCategory = 'fruit';
+                    });
+                  }),
+                  MenuButton(logo: 'dairy', title: 'Dairy', color: Colors.brown, onPress: () {
+                    setState(() {
+                      _selectedCategory = 'dairy';
+                    });
+                  }),
+                  MenuButton(logo: 'protein', title: 'Proteins', color: Colors.amber[500]!, onPress: () {
+                    setState(() {
+                      _selectedCategory = 'protein';
+                    });
+                  }),
+                  MenuButton(logo: 'grain', title: 'Grains', color: Colors.blueGrey, onPress: () {
+                    setState(() {
+                      _selectedCategory = 'grain';
+                    });
+                  }),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Flexible(
           child: StreamBuilder<List<MenuModel>>(
             stream: _menuStream,
             builder: (context, snapshot) {
@@ -214,18 +278,16 @@ class _MenuPostState extends State<MenuPost> {
                 List<MenuModel>? menus = snapshot.data;
                 if (menus != null && menus.isNotEmpty) {
                   List<MenuModel> filteredMenu = menus
-                      .where((menu) => _matchesSearchText(menu))
+                      .where((menu) => _matchesSearchText(menu) && (menu.category == _selectedCategory || _selectedCategory.isEmpty))
                       .toList();
                   if (filteredMenu.isNotEmpty) {
                     return GridView.builder(
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2, // Number of posts per line
-                        crossAxisSpacing: 4.0,
-                        mainAxisSpacing: 20.0,
-                        childAspectRatio:
-                        0.95, // Adjust the aspect ratio as needed
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 0.0,
+                        childAspectRatio: 0.95, // Adjust the aspect ratio as needed
                       ),
                       itemCount: filteredMenu.length,
                       itemBuilder: (context, index) {
@@ -259,3 +321,5 @@ class _MenuPostState extends State<MenuPost> {
         menu.price.toString().contains(term));
   }
 }
+
+

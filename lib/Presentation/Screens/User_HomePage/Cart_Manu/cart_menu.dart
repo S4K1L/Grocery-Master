@@ -60,7 +60,9 @@ class _CartMenuPageState extends State<CartMenuPage> {
           docId: doc.id,
           moreImagesUrl: imageUrlList.map((url) => url as String).toList(),
           isFav: true,
-          details: doc['details'], // Since it's already in the card collection
+          details: doc['details'],
+          category: doc['category'],
+          subDetails: doc['subDetails'],
         );
       }).toList();
     });

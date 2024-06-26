@@ -12,7 +12,6 @@ class CustomAppBar extends StatelessWidget {
       padding: const EdgeInsets.only(
         left: appPadding,
         right: appPadding,
-        top: appPadding,
       ),
       child: Container(
         height: size.height * 0.1,
@@ -23,18 +22,10 @@ class CustomAppBar extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  border: Border.all(color: Colors.green,),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Icon(
-                  Icons.chevron_left_rounded,
-                  color: kTextWhiteColor,
-                ),
+              child: Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.black,
+                size: 28,
               ),
             ),
           ],

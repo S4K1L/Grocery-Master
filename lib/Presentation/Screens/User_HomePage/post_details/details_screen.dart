@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../manu_model.dart';
 import 'components/carousel_images.dart';
 import 'components/custom_app_bar.dart';
-import 'components/house_details.dart';
+import 'components/menu_details.dart';
 
 
 class DetailsScreen extends StatefulWidget {
@@ -27,7 +27,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
             ],
           ),
           //Categories(),
-          Expanded(child: HouseDetails(widget.menu)),
+          Expanded(child: MenuDetails(widget.menu)),
         ],
       ),
     );

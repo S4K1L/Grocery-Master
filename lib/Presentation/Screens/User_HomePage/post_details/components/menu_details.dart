@@ -1,0 +1,393 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grocerymaster/Theme/const.dart';
+import '../../../../../Theme/styles.dart';
+import '../../manu_model.dart';
+
+class MenuDetails extends StatefulWidget {
+  final MenuModel menu;
+
+  const MenuDetails(this.menu, {super.key});
+
+  @override
+  _MenuDetailsState createState() => _MenuDetailsState();
+}
+
+class _MenuDetailsState extends State<MenuDetails> {
+  final TextEditingController _commentController = TextEditingController();
+  double _rating = 0;
+  double _averageRating = 0;
+  int _totalRatings = 0;
+  int _itemCount = 1;
+  final Map<String, bool> _favorites = {};
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _user = _auth.currentUser;
+    _fetchRatings();
+    _initializeFavorites();
+  }
+
+  Future<void> _initializeFavorites() async {
+    if (_user != null) {
+      final userFavoritesSnapshot = await FirebaseFirestore.instance
+          .collection('cart')
+          .where('userUid', isEqualTo: _user!.uid)
+          .get();
+
+      setState(() {
+        for (var doc in userFavoritesSnapshot.docs) {
+          _favorites[doc['docId']] = true;
+        }
+      });
+    }
+  }
+
+  Future<void> _fetchRatings() async {
+    final ratingsSnapshot = await FirebaseFirestore.instance
+        .collection('menu')
+        .doc(widget.menu.docId)
+        .collection('ratings')
+        .get();
+
+    if (ratingsSnapshot.docs.isNotEmpty) {
+      double totalRating = 0;
+      for (var doc in ratingsSnapshot.docs) {
+        totalRating += doc['rating'];
+      }
+      setState(() {
+        _totalRatings = ratingsSnapshot.docs.length;
+        _averageRating = totalRating / _totalRatings;
+      });
+    }
+  }
+
+  Future<void> _submitRating() async {
+    await FirebaseFirestore.instance
+        .collection('menu')
+        .doc(widget.menu.docId)
+        .collection('ratings')
+        .add({
+      'rating': _rating,
+      'comment': _commentController.text,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    _fetchRatings();
+    _commentController.clear();
+    setState(() {
+      _rating = 0;
+    });
+  }
+
+  void _toggleFavorite(MenuModel menu) async {
+    if (_user == null) {
+      // User not logged in, handle appropriately
+      return;
+    }
+    final userUid = _user!.uid;
+
+    setState(() {
+      _favorites[menu.docId] = !(_favorites[menu.docId] ?? false);
+    });
+
+    if (_favorites[menu.docId]!) {
+      await FirebaseFirestore.instance.collection('cart').add({
+        'imageUrl': menu.imageUrl,
+        'name': menu.name,
+        'price': menu.price,
+        'details': menu.details,
+        'docId': menu.docId,
+        'moreImagesUrl': menu.moreImagesUrl,
+        'userUid': userUid,
+      });
+    } else {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('cart')
+          .where('docId', isEqualTo: menu.docId)
+          .where('userUid', isEqualTo: userUid)
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final menu = widget.menu;
+    bool isFavorite = _favorites[menu.docId] ?? false;
+
+    return Scaffold(
+      bottomNavigationBar: Container(
+        color: Colors.grey[200],
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 10),
+          child: Row(
+            children: [
+              Container(
+                width: 45,
+                height: 45,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.lightGreen[300],
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border_sharp,
+                    color: isFavorite ? Colors.red : Colors.green,
+                  ),
+                  onPressed: () {
+                    _toggleFavorite(menu);
+                  },
+                ),
+              ),
+              SizedBox(width: 30),
+              Expanded(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add to bucket logic
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightGreen[600],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Add to Bucket',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        shrinkWrap: true,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              color: Colors.grey[200],
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(appPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            menu.name,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Rating',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _averageRating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            'RM ${menu.price.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.lightGreen[600],
+                            ),
+                          ),
+                          Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon:  Icon(Icons.remove_circle_outline,color: Colors.lightGreen[600],),
+                                onPressed: () {
+                                  setState(() {
+                                    if (_itemCount > 1) _itemCount--;
+                                  });
+                                },
+                              ),
+                              Text(
+                                _itemCount.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.lightGreen[600],
+                                ),
+                              ),
+                              IconButton(
+                                icon:  Icon(Icons.add_circle_outline,color: Colors.lightGreen[600],),
+                                onPressed: () {
+                                  setState(() {
+                                    _itemCount++;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '12 pcs - 500 to 900 gm',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      Text(
+                        'Details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        menu.details,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          color: kTextBlackColor.withOpacity(0.6),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 120),
+                      Text(
+                        'Comments',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('menu')
+                            .doc(menu.docId)
+                            .collection('ratings')
+                            .orderBy('timestamp', descending: true)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.data!.docs.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(appPadding),
+                              child: Text('No comments yet.'),
+                            );
+                          }
+                          return ListView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            children: snapshot.data!.docs.map((doc) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 10, bottom: 40),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        doc['comment'],
+                                        style: TextStyle(
+                                          color: kTextBlackColor.withOpacity(0.6),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${doc['rating'].toStringAsFixed(1)}',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                      TextFormField(
+                        controller: _commentController,
+                        decoration:  InputDecoration(
+                          hintText: 'Leave a comments',
+                          hintStyle: TextStyle(
+                              color: Colors.lightGreenAccent[600],
+                          ),
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width / 1.5,
+                          child: ElevatedButton(
+                            onPressed: _submitRating,
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(color: kTextWhiteColor),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
