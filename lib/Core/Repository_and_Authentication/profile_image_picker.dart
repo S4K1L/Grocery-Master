@@ -83,8 +83,8 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
                 if (snapshot.data!.exists && snapshot.data!.data()!.containsKey('profile_image')) {
                   String? imageUrl = snapshot.data!.data()!['profile_image'];
                   return CircleAvatar(
-                    minRadius: 40.0,
-                    maxRadius: 40.0,
+                    minRadius: 50.0,
+                    maxRadius: 50.0,
                     backgroundColor: kSecondaryColor,
                     backgroundImage: imageUrl != null
                         ? NetworkImage(imageUrl)

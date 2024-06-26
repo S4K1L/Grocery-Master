@@ -111,8 +111,10 @@ class _CartMenuPageState extends State<CartMenuPage> {
         'userUid': userUid,
         'menuId': menu.docId,
         'name': menu.name,
+        'category': menu.category,
         'price': menu.price,
         'details': menu.details,
+        'subDetails': menu.subDetails,
         'quantity': quantity,
         'imageUrl': menu.imageUrl,
         'moreImagesUrl': menu.moreImagesUrl,
@@ -178,7 +180,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
                           height: 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: Colors.purple[300],
+                            color: Colors.green[600],
                           ),
                           child: Center(
                             child: IconButton(
@@ -201,7 +203,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
                           height: 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: Colors.purple[300],
+                            color: Colors.green[600],
                           ),
                           child: Center(
                             child: IconButton(
@@ -217,7 +219,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
                   ElevatedButton(
                     onPressed: () => _addToCart(menu),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple[300],
+                      backgroundColor: Colors.green[600],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

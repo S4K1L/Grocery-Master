@@ -6,7 +6,6 @@ import '../../../../../Core/Repository_and_Authentication/custom_buttons.dart';
 import '../../../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../../../Core/Repository_and_Authentication/services/auth.dart';
 import '../../../../../Theme/const.dart';
-import '../../welcome/views/welcome_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});

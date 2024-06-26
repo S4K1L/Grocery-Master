@@ -92,7 +92,7 @@ class _CheckOutState extends State<CheckOut> {
                       height: 55,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: Colors.purple[400]),
+                          color: Colors.green[600]),
                       child: TextButton(
                         onPressed: () {
                           _showCheckoutDialog(context, cartItems, total);
