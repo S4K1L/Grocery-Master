@@ -19,30 +19,73 @@ class _MenuDetailsState extends State<MenuDetails> {
   double _rating = 0;
   double _averageRating = 0;
   int _totalRatings = 0;
-  int _itemCount = 1;
+  int _itemCount = 0;
   final Map<String, bool> _favorites = {};
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  Map<String, int> _quantities = {};
   User? _user;
+  late Stream<List<MenuModel>> _menuStream;
 
   @override
   void initState() {
     super.initState();
     _user = _auth.currentUser;
     _fetchRatings();
-    _initializeFavorites();
   }
 
-  Future<void> _initializeFavorites() async {
-    if (_user != null) {
-      final userFavoritesSnapshot = await FirebaseFirestore.instance
-          .collection('cart')
-          .where('userUid', isEqualTo: _user!.uid)
-          .get();
 
-      setState(() {
-        for (var doc in userFavoritesSnapshot.docs) {
-          _favorites[doc['docId']] = true;
-        }
+  void _increment(MenuModel menu) {
+    setState(() {
+      _itemCount++;
+      _quantities[menu.docId] = _itemCount;
+    });
+  }
+
+  void _decrement(MenuModel menu) {
+    setState(() {
+      if (_itemCount > 0) {
+        _itemCount--;
+        _quantities[menu.docId] = _itemCount;
+      }
+    });
+  }
+
+  void _addToCart(MenuModel menu) {
+    setState(() {
+      if (_quantities[menu.docId] != null && _quantities[menu.docId]! > 0) {
+        // Item has been added to the cart with a positive quantity
+        _storeCheckoutData(menu, _quantities[menu.docId]!);
+      } else {
+        // Ensure that an item added to the cart has a quantity of at least 1
+        _quantities[menu.docId] = 1;
+        _storeCheckoutData(menu, 1);
+      }
+
+      // Show Snackbar message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${menu.name} added to cart!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    });
+  }
+
+  void _storeCheckoutData(MenuModel menu, int quantity) async {
+    if (_user != null) {
+      final userUid = _user!.uid;
+      final docId = FirebaseFirestore.instance.collection('checkout').doc().id;
+      await FirebaseFirestore.instance.collection('checkout').doc(docId).set({
+        'userUid': userUid,
+        'menuId': menu.docId,
+        'name': menu.name,
+        'category': menu.category,
+        'price': menu.price,
+        'details': menu.details,
+        'subDetails': menu.subDetails,
+        'quantity': quantity,
+        'imageUrl': menu.imageUrl,
+        'moreImagesUrl': menu.moreImagesUrl,
       });
     }
   }
@@ -122,12 +165,11 @@ class _MenuDetailsState extends State<MenuDetails> {
   Widget build(BuildContext context) {
     final menu = widget.menu;
     bool isFavorite = _favorites[menu.docId] ?? false;
-
     return Scaffold(
       bottomNavigationBar: Container(
         color: Colors.grey[200],
         child: Padding(
-          padding: const EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 10),
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
           child: Row(
             children: [
               Container(
@@ -152,9 +194,7 @@ class _MenuDetailsState extends State<MenuDetails> {
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Add to bucket logic
-                    },
+                    onPressed: () => _addToCart(menu),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.lightGreen[600],
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -245,12 +285,8 @@ class _MenuDetailsState extends State<MenuDetails> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                icon:  Icon(Icons.remove_circle_outline,color: Colors.lightGreen[600],),
-                                onPressed: () {
-                                  setState(() {
-                                    if (_itemCount > 1) _itemCount--;
-                                  });
-                                },
+                                icon: Icon(Icons.remove_circle_outline, color: Colors.lightGreen[600],),
+                                onPressed: () => _decrement(menu),
                               ),
                               Text(
                                 _itemCount.toString().padLeft(2, '0'),
@@ -261,12 +297,8 @@ class _MenuDetailsState extends State<MenuDetails> {
                                 ),
                               ),
                               IconButton(
-                                icon:  Icon(Icons.add_circle_outline,color: Colors.lightGreen[600],),
-                                onPressed: () {
-                                  setState(() {
-                                    _itemCount++;
-                                  });
-                                },
+                                icon: Icon(Icons.add_circle_outline, color: Colors.lightGreen[600],),
+                                onPressed: () => _increment(menu),
                               ),
                             ],
                           ),
@@ -356,10 +388,10 @@ class _MenuDetailsState extends State<MenuDetails> {
                       ),
                       TextFormField(
                         controller: _commentController,
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Leave a comments',
                           hintStyle: TextStyle(
-                              color: Colors.lightGreenAccent[600],
+                            color: Colors.lightGreenAccent[600],
                           ),
                           border: OutlineInputBorder(),
                         ),

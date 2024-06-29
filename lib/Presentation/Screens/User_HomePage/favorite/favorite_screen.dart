@@ -7,14 +7,14 @@ import '../../Drawer/user_Drawer.dart';
 import '../checkout/chekout.dart';
 import '../manu_model.dart';
 
-class CartMenuPage extends StatefulWidget {
-  const CartMenuPage({super.key});
+class FavoriteScreen extends StatefulWidget {
+  const FavoriteScreen({super.key});
 
   @override
-  _CartMenuPageState createState() => _CartMenuPageState();
+  _FavoriteScreenState createState() => _FavoriteScreenState();
 }
 
-class _CartMenuPageState extends State<CartMenuPage> {
+class _FavoriteScreenState extends State<FavoriteScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
   late Stream<List<MenuModel>> _menuStream;
@@ -43,7 +43,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
     }
     final userUid = _user!.uid;
     return FirebaseFirestore.instance
-        .collection('cart')
+        .collection('favorite')
         .where('userUid', isEqualTo: userUid)
         .snapshots()
         .map((snapshot) {
@@ -120,24 +120,6 @@ class _CartMenuPageState extends State<CartMenuPage> {
     }
   }
 
-  Future<void> _deleteCartItem(String docId) async {
-    try {
-      final FirebaseAuth auth = FirebaseAuth.instance;
-      final User? user = auth.currentUser;
-      if (user == null) return;
-
-      await FirebaseFirestore.instance
-          .collection('cart')
-          .doc(docId)
-          .delete();
-
-      setState(() {});
-    } catch (e) {
-      // Handle error
-      print('Error deleting item: $e');
-    }
-  }
-
   Widget _buildMenuItem(BuildContext context, MenuModel menu) {
     int quantity = _quantities[menu.docId] ?? 0;
     return Padding(
@@ -149,21 +131,6 @@ class _CartMenuPageState extends State<CartMenuPage> {
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.green[100],
-              ),
-              child: IconButton(
-                onPressed: () => _deleteCartItem(menu.docId),
-                icon: Icon(
-                  Icons.remove_circle_outline,
-                  color: Colors.green,
-                ),
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: ClipRRect(
@@ -184,14 +151,14 @@ class _CartMenuPageState extends State<CartMenuPage> {
                   Text(
                     menu.name,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     'RM ${menu.price}',
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),

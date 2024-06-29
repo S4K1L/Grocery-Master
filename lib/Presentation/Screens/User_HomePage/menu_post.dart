@@ -37,15 +37,19 @@ class _MenuPostState extends State<MenuPost> {
   }
 
   Stream<List<MenuModel>> _fetchMenuFromFirebase() {
-    return FirebaseFirestore.instance.collection('menu').snapshots().map((snapshot) {
+    return FirebaseFirestore.instance
+        .collection('menu')
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         final moreImagesUrl = doc['moreImagesUrl'];
-        final imageUrlList = moreImagesUrl is List ? moreImagesUrl : [moreImagesUrl];
+        final imageUrlList =
+        moreImagesUrl is List ? moreImagesUrl : [moreImagesUrl];
 
         bool isFav = false;
         if (_user != null) {
           FirebaseFirestore.instance
-              .collection('cart')
+              .collection('favorite')
               .where('userUid', isEqualTo: _user!.uid)
               .where('docId', isEqualTo: doc.id)
               .get()
@@ -90,9 +94,7 @@ class _MenuPostState extends State<MenuPost> {
             height: 190,
             width: 150,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Colors.white
-            ),
+                borderRadius: BorderRadius.circular(20), color: Colors.white),
             child: Column(
               children: [
                 ClipRRect(
@@ -100,7 +102,7 @@ class _MenuPostState extends State<MenuPost> {
                   child: Image.network(
                     menu.imageUrl,
                     height: 100,
-                    width: MediaQuery.of(context).size.width/2.5,
+                    width: MediaQuery.of(context).size.width / 2.5,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -128,15 +130,16 @@ class _MenuPostState extends State<MenuPost> {
                   height: 40,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20)
-                    ),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20)),
                     color: Colors.lightGreen[600],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Expanded(
                         child: Text(
                           'RM ${menu.price}',
@@ -155,6 +158,7 @@ class _MenuPostState extends State<MenuPost> {
                             color: Colors.white,
                           ),
                           onPressed: () {
+                            _toggleCart(menu);
                           },
                         ),
                       ),
@@ -180,6 +184,36 @@ class _MenuPostState extends State<MenuPost> {
     );
   }
 
+  void _toggleCart(MenuModel menu) async {
+    if (_user == null) {
+      // User not logged in, handle appropriately
+      return;
+    }
+    final userUid = _user!.uid;
+
+
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('cart')
+        .where('docId', isEqualTo: menu.docId)
+        .where('userUid', isEqualTo: userUid)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      final docId = FirebaseFirestore.instance.collection('cart').doc().id;
+      await FirebaseFirestore.instance.collection('cart').doc(docId).set({
+          'imageUrl': menu.imageUrl,
+          'name': menu.name,
+          'price': menu.price,
+          'details': menu.details,
+          'subDetails': menu.subDetails,
+          'category': menu.category,
+          'docId': menu.docId,
+          'moreImagesUrl': menu.moreImagesUrl,
+          'userUid': userUid,
+        });
+    }
+  }
+
   void _toggleFavorite(MenuModel menu) async {
     if (_user == null) {
       // User not logged in, handle appropriately
@@ -191,30 +225,40 @@ class _MenuPostState extends State<MenuPost> {
       _favorites[menu.docId] = !(_favorites[menu.docId] ?? false);
     });
 
-    if (_favorites[menu.docId]!) {
-      await FirebaseFirestore.instance.collection('cart').add({
-        'imageUrl': menu.imageUrl,
-        'name': menu.name,
-        'price': menu.price,
-        'details': menu.details,
-        'subDetails': menu.subDetails,
-        'category': menu.category,
-        'docId': menu.docId,
-        'moreImagesUrl': menu.moreImagesUrl,
-        'userUid': userUid,
-      });
-    } else {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('cart')
-          .where('docId', isEqualTo: menu.docId)
-          .where('userUid', isEqualTo: userUid)
-          .get();
+      if (_favorites[menu.docId]!) {
+        await FirebaseFirestore.instance.collection('favorite').add({
+          'imageUrl': menu.imageUrl,
+          'name': menu.name,
+          'price': menu.price,
+          'details': menu.details,
+          'subDetails': menu.subDetails,
+          'category': menu.category,
+          'docId': menu.docId,
+          'moreImagesUrl': menu.moreImagesUrl,
+          'userUid': userUid,
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${menu.name} added to Favorite!'),
+          duration: Duration(seconds: 2),
+        ));
+      } else {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('favorite')
+            .where('docId', isEqualTo: menu.docId)
+            .where('userUid', isEqualTo: userUid)
+            .get();
 
-      for (var doc in querySnapshot.docs) {
-        await doc.reference.delete();
+        for (var doc in querySnapshot.docs) {
+          await doc.reference.delete();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${menu.name} removed from Favorite!'),
+          duration: Duration(seconds: 2),
+        ));
+
       }
-    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -229,38 +273,67 @@ class _MenuPostState extends State<MenuPost> {
             children: [
               Row(
                 children: [
-                  MenuButton(logo: 'all', title: 'All', color: Colors.grey, onPress: () {
-                    setState(() {
-                      _selectedCategory = '';
-                    });
-                  }),
-                  MenuButton(logo: 'vegetable', title: 'Veg', color: Colors.green[300]!, onPress: () {
-                    setState(() {
-                      _selectedCategory = 'vegetable';
-                    });
-                  }),
-                  MenuButton(logo: 'fruit', title: 'Fruits', color: Colors.lightGreen[600]!, onPress: () {
-                    setState(() {
-                      _selectedCategory = 'fruit';
-                    });
-                  }),
-                  MenuButton(logo: 'dairy', title: 'Dairy', color: Colors.brown, onPress: () {
-                    setState(() {
-                      _selectedCategory = 'dairy';
-                    });
-                  }),
-                  MenuButton(logo: 'protein', title: 'Proteins', color: Colors.amber[500]!, onPress: () {
-                    setState(() {
-                      _selectedCategory = 'protein';
-                    });
-                  }),
-                  MenuButton(logo: 'grain', title: 'Grains', color: Colors.blueGrey, onPress: () {
-                    setState(() {
-                      _selectedCategory = 'grain';
-                    });
-                  }),
+                  MenuButton(
+                      logo: 'all',
+                      title: 'All',
+                      color: Colors.grey,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = '';
+                        });
+                      }),
+                  MenuButton(
+                      logo: 'vegetable',
+                      title: 'Veg',
+                      color: Colors.green[300]!,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = 'vegetable';
+                        });
+                      }),
+                  MenuButton(
+                      logo: 'fruit',
+                      title: 'Fruits',
+                      color: Colors.lightGreen[600]!,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = 'fruit';
+                        });
+                      }),
+                  MenuButton(
+                      logo: 'dairy',
+                      title: 'Dairy',
+                      color: Colors.brown,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = 'dairy';
+                        });
+                      }),
+                  MenuButton(
+                      logo: 'protein',
+                      title: 'Proteins',
+                      color: Colors.amber[500]!,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = 'protein';
+                        });
+                      }),
+                  MenuButton(
+                      logo: 'grain',
+                      title: 'Grains',
+                      color: Colors.blueGrey,
+                      onPress: () {
+                        setState(() {
+                          _selectedCategory = 'grain';
+                        });
+                      }),
                 ],
               ),
+              IconButton(
+                alignment: Alignment.topRight,
+                onPressed: () {},
+                icon: Icon(Icons.filter_list, color: Colors.green),
+              )
             ],
           ),
         ),
@@ -280,16 +353,21 @@ class _MenuPostState extends State<MenuPost> {
                 List<MenuModel>? menus = snapshot.data;
                 if (menus != null && menus.isNotEmpty) {
                   List<MenuModel> filteredMenu = menus
-                      .where((menu) => _matchesSearchText(menu) && (menu.category == _selectedCategory || _selectedCategory.isEmpty))
+                      .where((menu) =>
+                  _matchesSearchText(menu) &&
+                      (menu.category == _selectedCategory ||
+                          _selectedCategory.isEmpty))
                       .toList();
                   if (filteredMenu.isNotEmpty) {
                     return GridView.builder(
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2, // Number of posts per line
                         crossAxisSpacing: 0,
                         mainAxisSpacing: 0.0,
-                        childAspectRatio: 0.95, // Adjust the aspect ratio as needed
+                        childAspectRatio:
+                        0.95, // Adjust the aspect ratio as needed
                       ),
                       itemCount: filteredMenu.length,
                       itemBuilder: (context, index) {
@@ -323,5 +401,3 @@ class _MenuPostState extends State<MenuPost> {
         menu.price.toString().contains(term));
   }
 }
-
-

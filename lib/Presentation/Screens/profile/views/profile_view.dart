@@ -6,6 +6,7 @@ import '../../../../../Core/Repository_and_Authentication/custom_buttons.dart';
 import '../../../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../../../Core/Repository_and_Authentication/services/auth.dart';
 import '../../../../../Theme/const.dart';
+import '../../Bottom_bar/user_bottombar.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -65,8 +66,15 @@ class _ProfileViewState extends State<ProfileView> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.add, color: kTextWhiteColor),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserBottom(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.arrow_back_ios_new, color: Colors.green),
                     ),
                     Spacer(),
                     Text(
