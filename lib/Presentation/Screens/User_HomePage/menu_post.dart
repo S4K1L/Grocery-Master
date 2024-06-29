@@ -201,16 +201,26 @@ class _MenuPostState extends State<MenuPost> {
     if (querySnapshot.docs.isEmpty) {
       final docId = FirebaseFirestore.instance.collection('cart').doc().id;
       await FirebaseFirestore.instance.collection('cart').doc(docId).set({
-          'imageUrl': menu.imageUrl,
-          'name': menu.name,
-          'price': menu.price,
-          'details': menu.details,
-          'subDetails': menu.subDetails,
-          'category': menu.category,
-          'docId': menu.docId,
-          'moreImagesUrl': menu.moreImagesUrl,
-          'userUid': userUid,
-        });
+        'imageUrl': menu.imageUrl,
+        'name': menu.name,
+        'price': menu.price,
+        'details': menu.details,
+        'subDetails': menu.subDetails,
+        'category': menu.category,
+        'docId': menu.docId,
+        'moreImagesUrl': menu.moreImagesUrl,
+        'userUid': userUid,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${menu.name} added to cart!'),
+        duration: Duration(seconds: 2),
+      ));
+    }else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${menu.name} already Exists!'),
+        duration: Duration(seconds: 2),
+      ));
+
     }
   }
 
@@ -225,38 +235,38 @@ class _MenuPostState extends State<MenuPost> {
       _favorites[menu.docId] = !(_favorites[menu.docId] ?? false);
     });
 
-      if (_favorites[menu.docId]!) {
-        await FirebaseFirestore.instance.collection('favorite').add({
-          'imageUrl': menu.imageUrl,
-          'name': menu.name,
-          'price': menu.price,
-          'details': menu.details,
-          'subDetails': menu.subDetails,
-          'category': menu.category,
-          'docId': menu.docId,
-          'moreImagesUrl': menu.moreImagesUrl,
-          'userUid': userUid,
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('${menu.name} added to Favorite!'),
-          duration: Duration(seconds: 2),
-        ));
-      } else {
-        final querySnapshot = await FirebaseFirestore.instance
-            .collection('favorite')
-            .where('docId', isEqualTo: menu.docId)
-            .where('userUid', isEqualTo: userUid)
-            .get();
+    if (_favorites[menu.docId]!) {
+      await FirebaseFirestore.instance.collection('favorite').add({
+        'imageUrl': menu.imageUrl,
+        'name': menu.name,
+        'price': menu.price,
+        'details': menu.details,
+        'subDetails': menu.subDetails,
+        'category': menu.category,
+        'docId': menu.docId,
+        'moreImagesUrl': menu.moreImagesUrl,
+        'userUid': userUid,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${menu.name} added to Favorite!'),
+        duration: Duration(seconds: 2),
+      ));
+    } else {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('favorite')
+          .where('docId', isEqualTo: menu.docId)
+          .where('userUid', isEqualTo: userUid)
+          .get();
 
-        for (var doc in querySnapshot.docs) {
-          await doc.reference.delete();
-        }
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('${menu.name} removed from Favorite!'),
-          duration: Duration(seconds: 2),
-        ));
-
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
       }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${menu.name} removed from Favorite!'),
+        duration: Duration(seconds: 2),
+      ));
+
+    }
   }
 
 
@@ -288,7 +298,7 @@ class _MenuPostState extends State<MenuPost> {
                       color: Colors.green[300]!,
                       onPress: () {
                         setState(() {
-                          _selectedCategory = 'vegetable';
+                          _selectedCategory = 'Vegetables';
                         });
                       }),
                   MenuButton(
@@ -297,7 +307,7 @@ class _MenuPostState extends State<MenuPost> {
                       color: Colors.lightGreen[600]!,
                       onPress: () {
                         setState(() {
-                          _selectedCategory = 'fruit';
+                          _selectedCategory = 'Fruits';
                         });
                       }),
                   MenuButton(
@@ -306,7 +316,7 @@ class _MenuPostState extends State<MenuPost> {
                       color: Colors.brown,
                       onPress: () {
                         setState(() {
-                          _selectedCategory = 'dairy';
+                          _selectedCategory = 'Dairy';
                         });
                       }),
                   MenuButton(
@@ -315,7 +325,7 @@ class _MenuPostState extends State<MenuPost> {
                       color: Colors.amber[500]!,
                       onPress: () {
                         setState(() {
-                          _selectedCategory = 'protein';
+                          _selectedCategory = 'Proteins';
                         });
                       }),
                   MenuButton(
@@ -324,16 +334,28 @@ class _MenuPostState extends State<MenuPost> {
                       color: Colors.blueGrey,
                       onPress: () {
                         setState(() {
-                          _selectedCategory = 'grain';
+                          _selectedCategory = 'Grains';
                         });
                       }),
                 ],
               ),
-              IconButton(
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 10,left: 10),
+          child: Row(
+            children: [
+              Text(_selectedCategory,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
+              Spacer(),
+              Align(
                 alignment: Alignment.topRight,
-                onPressed: () {},
-                icon: Icon(Icons.filter_list, color: Colors.green),
-              )
+                child: IconButton(
+                  alignment: Alignment.topRight,
+                  onPressed: () {},
+                  icon: Icon(Icons.sort_sharp, color: Colors.green),
+                ),
+              ),
             ],
           ),
         ),

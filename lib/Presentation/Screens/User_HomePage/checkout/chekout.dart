@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 import '../../../../Theme/const.dart';
 import '../../Drawer/user_Drawer.dart';
+import '../../Payment_Page/payment_method.dart';
 import '../manu_model.dart';
 
 class CheckOut extends StatefulWidget {
@@ -95,7 +96,13 @@ class _CheckOutState extends State<CheckOut> {
                           color: Colors.green[600]),
                       child: TextButton(
                         onPressed: () {
-                          _showCheckoutDialog(context, cartItems, total);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>  PaymentMethodSelection(),
+                            ),
+                          );
+
                         },
                         child: const Text(
                           'CHECKOUT',

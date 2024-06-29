@@ -224,12 +224,11 @@ class _CreateMenuState extends State<CreateMenu> {
                   validator: (val) => val!.isEmpty ? 'Select Category' : null,
                   items: <String>[
                     '',
-                    'vegetable',
-                    'fruit',
-                    'dairy',
-                    'protein',
-                    'protein',
-                    'grain',
+                    'Vegetables',
+                    'Fruits',
+                    'Dairy',
+                    'Proteins',
+                    'Grains',
                   ].map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,

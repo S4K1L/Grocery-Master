@@ -120,7 +120,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
     }
   }
 
-  Future<void> _deleteCartItem(String docId) async {
+  Future<void> _deleteCartItem(MenuModel menu,String docId) async {
     try {
       final FirebaseAuth auth = FirebaseAuth.instance;
       final User? user = auth.currentUser;
@@ -132,6 +132,10 @@ class _CartMenuPageState extends State<CartMenuPage> {
           .delete();
 
       setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${menu.name} removed from cart!'),
+        duration: Duration(seconds: 2),
+      ));
     } catch (e) {
       // Handle error
       print('Error deleting item: $e');
@@ -157,7 +161,7 @@ class _CartMenuPageState extends State<CartMenuPage> {
                 color: Colors.green[100],
               ),
               child: IconButton(
-                onPressed: () => _deleteCartItem(menu.docId),
+                onPressed: () => _deleteCartItem(menu,menu.docId),
                 icon: Icon(
                   Icons.remove_circle_outline,
                   color: Colors.green,

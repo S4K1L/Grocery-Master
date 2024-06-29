@@ -64,7 +64,7 @@ class _MenuDetailsState extends State<MenuDetails> {
       // Show Snackbar message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${menu.name} added to cart!'),
+          content: Text('${menu.name} added to checkout!'),
           duration: Duration(seconds: 2),
         ),
       );
