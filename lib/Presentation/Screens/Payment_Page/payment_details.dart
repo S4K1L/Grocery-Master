@@ -21,27 +21,159 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Enter Payment Details')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (widget.paymentMethod == 'Credit Card') ...[
-              formWidget('Card Number',cardNumberController),
-              SizedBox(height: 20),
-              formWidget('Cardholder\'s Name',cardHolderNameController),
-              SizedBox(height: 20),
-              formWidget('Expiration Date',expireController),
-              SizedBox(height: 20),
-              formWidget('CVV',cvvController),
-              SizedBox(height: 20),
-              ButtonWidget(onPress: (){}, title: 'Confirm & Pay',)
-            ],
-            if (widget.paymentMethod != 'Credit Card') ...[
-              Center(child: Text('Selected payment method: ${widget.paymentMethod}')),
-            ],
-          ],
-        ),
+      backgroundColor: Colors.grey[300],
+      appBar: AppBar(title: Text('Enter Payment Details',style: TextStyle(color: Colors.green),),
+        backgroundColor: Colors.grey[300],),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 100,left: 20,right: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: kTextWhiteColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    if (widget.paymentMethod == 'Credit Card') ...[
+                      formWidget('Card Number',cardNumberController),
+                      SizedBox(height: 20),
+                      formWidget('Cardholder\'s Name',cardHolderNameController),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                        SizedBox(
+                        width: MediaQuery.of(context).size.width /2.5,
+                        child: TextFormField(
+                          controller: expireController,
+                          decoration: InputDecoration(
+                            labelText: 'Expiration Date',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                          Spacer(),
+                          SizedBox(
+                          width: MediaQuery.of(context).size.width /2.5,
+                        child: TextFormField(
+                          controller: cvvController,
+                          decoration: InputDecoration(
+                            labelText: 'CVV',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      ButtonWidget(onPress: (){}, title: 'Confirm & Pay',)
+                    ],
+                    if (widget.paymentMethod == 'Debit Card') ...[
+                      formWidget('Debit Number',cardNumberController),
+                      SizedBox(height: 20),
+                      formWidget('Cardholder\'s Name',cardHolderNameController),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width /2.5,
+                            child: TextFormField(
+                              controller: expireController,
+                              decoration: InputDecoration(
+                                labelText: 'Expiration Date',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter some text';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Spacer(),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width /2.5,
+                            child: TextFormField(
+                              controller: cvvController,
+                              decoration: InputDecoration(
+                                labelText: 'CVV',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter some text';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      ButtonWidget(onPress: (){}, title: 'Confirm & Pay',)
+                    ],
+                    if (widget.paymentMethod == 'Net Banking') ...[
+                      formWidget('Account Number',cardNumberController),
+                      SizedBox(height: 20),
+                      formWidget('Account holder\'s Name',cardHolderNameController),
+                      SizedBox(height: 20),
+                      ButtonWidget(onPress: (){}, title: 'Confirm & Pay',)
+                    ],
+                    if (widget.paymentMethod == 'Cash on Delivery') ...[
+                      formWidget('Full Name',cardNumberController),
+                      SizedBox(height: 20),
+                      formWidget('Phone',cardHolderNameController),
+                      SizedBox(height: 20),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: TextFormField(
+                          controller: expireController,
+                          decoration: InputDecoration(
+                            labelText: 'Address',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ButtonWidget(onPress: (){}, title: 'Confirm',)
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
