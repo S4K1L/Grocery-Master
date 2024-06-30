@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Admin_HomePage/Admin_Home_Screen.dart';
 import 'package:grocerymaster/Presentation/Screens/Admin_Panel/Create_Menu/create_menu.dart';
+import 'package:grocerymaster/Theme/const.dart';
+import '../Admin_Panel/Admin_profile/views/Admin_profile_view.dart';
 import '../Admin_Panel/New_Order/new_order.dart';
 import '../Admin_Panel/Order_History/Admin_order_history.dart';
-import '../profile/views/profile_view.dart';
 
 
 class AdminBottom extends StatefulWidget {
@@ -16,7 +17,7 @@ class AdminBottom extends StatefulWidget {
 
 class _BottomBarState extends State<AdminBottom> {
   int index_color = 0;
-  List Screen = [AdminHomeScreen(),NewOrders(),AdminOrderHistory(),ProfileView()];
+  List Screen = [AdminHomeScreen(),NewOrders(),AdminOrderHistory(),AdminProfileView()];
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class _BottomBarState extends State<AdminBottom> {
                 .push(MaterialPageRoute(builder: (context) => const CreateMenu()));
           },
           backgroundColor: Colors.green,
-          child: const Icon(Icons.shopping_basket_outlined),
+          child: const Icon(Icons.add_business_outlined,color: kTextWhiteColor,size: 28,),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(

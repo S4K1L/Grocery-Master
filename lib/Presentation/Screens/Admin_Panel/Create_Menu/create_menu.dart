@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../Drawer/admin_Drawer.dart';
 
-
 class CreateMenu extends StatefulWidget {
   const CreateMenu({super.key});
 
@@ -53,7 +52,8 @@ class _CreateMenuState extends State<CreateMenu> {
 
         if (firebaseUser != null) {
           String name = _nameController.text;
-          int? price = int.tryParse(_priceController.text); // Convert price to int
+          int? price =
+              int.tryParse(_priceController.text); // Convert price to int
           String details = _detailsController.text;
           String subDetails = _subDetailsController.text;
 
@@ -177,150 +177,141 @@ class _CreateMenuState extends State<CreateMenu> {
       drawer: AdminDrawer(),
       body: _isUploading
           ? Center(
-        child: CircularPercentIndicator(
-          radius: 80.0,
-          lineWidth: 16.0,
-          percent: _uploadProgress,
-          center: Text('${(_uploadProgress * 100).toStringAsFixed(0)}%'),
-          progressColor: Colors.blue,
-        ),
-      )
+              child: CircularPercentIndicator(
+                radius: 80.0,
+                lineWidth: 16.0,
+                percent: _uploadProgress,
+                center: Text('${(_uploadProgress * 100).toStringAsFixed(0)}%'),
+                progressColor: Colors.blue,
+              ),
+            )
           : SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildInputField(_nameController, 'Food Name'),
-              const SizedBox(height: 16.0),
-              _buildInputField(_priceController, 'Price'),
-              const SizedBox(height: 16.0),
-              _buildInputField(_detailsController, 'Details'),
-              const SizedBox(height: 16.0),
-              _buildInputField(_subDetailsController, 'Sub - Details'),
-              const SizedBox(height: 16.0),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                ),
-                child: DropdownButtonFormField<String>(
-                  hint: Text('Category',style: TextStyle(color: Colors.black),),
-                  value: category,
-                  onChanged: (newValue) {
-                    setState(() {
-                      category = newValue!;
-                    });
-                  },
-                  validator: (val) => val!.isEmpty ? 'Select Category' : null,
-                  items: <String>[
-                    '',
-                    'Vegetables',
-                    'Fruits',
-                    'Dairy',
-                    'Proteins',
-                    'Grains',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.w300),
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildInputField(_nameController, 'Food Name'),
+                    const SizedBox(height: 16.0),
+                    _buildInputField(_priceController, 'Price'),
+                    const SizedBox(height: 16.0),
+                    _buildInputField(_detailsController, 'Details',
+                        maxLines: 5),
+                    const SizedBox(height: 16.0),
+                    _buildInputField(_subDetailsController, 'Sub - Details'),
+                    const SizedBox(height: 16.0),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        hint: Text('Category',
+                            style: TextStyle(color: Colors.black)),
+                        value: category,
+                        onChanged: (newValue) {
+                          setState(() {
+                            category = newValue!;
+                          });
+                        },
+                        validator: (val) =>
+                            val!.isEmpty ? 'Select Category' : null,
+                        items: <String>[
+                          '',
+                          'Vegetables',
+                          'Fruits',
+                          'Dairy',
+                          'Proteins',
+                          'Grains',
+                        ].map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          border: InputBorder
+                              .none, // Remove the border of the DropdownButtonFormField
                         ),
                       ),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: InputBorder
-                        .none, // Remove the border of the DropdownButtonFormField
-                  ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width/1.28,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.green[300]
+                            ),
+                            child: TextButton(
+                                onPressed: _uploadAllData,
+                                child: Text(
+                                  'Add new product',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: _getImage,
+                            icon: Icon(
+                              Icons.image,
+                              color: Colors.green[300],
+                            )),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    _images.isEmpty
+                        ? Container()
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                            ),
+                            itemCount: _images.length,
+                            itemBuilder: (context, index) {
+                              return Image.file(
+                                _images[index],
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16.0),
-              SizedBox(
-                height: 50,
-                width: MediaQuery.of(context).size.width,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _getImage();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7F39FB),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Text(
-                    'Select Images',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              _images.isEmpty
-                  ? Container()
-                  : Column(
-                children: _images.map((image) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Image.file(
-                      image,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16.0),
-              SizedBox(
-                height: 50,
-                width: MediaQuery.of(context).size.width,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _uploadAllData();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7F39FB),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Text(
-                    'Create',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String labelText, {TextInputType? keyboardType}) {
+  Widget _buildInputField(TextEditingController controller, String labelText,
+      {int maxLines = 1, TextInputType? keyboardType}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -336,10 +327,11 @@ class _CreateMenuState extends State<CreateMenu> {
       ),
       child: TextFormField(
         controller: controller,
+        maxLines: maxLines,
         decoration: InputDecoration(
           labelText: labelText,
           contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide.none,

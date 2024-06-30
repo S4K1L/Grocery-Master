@@ -96,13 +96,7 @@ class _CheckOutState extends State<CheckOut> {
                           color: Colors.green[600]),
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>  PaymentMethodSelection(),
-                            ),
-                          );
-
+                          _showCheckoutDialog(context, cartItems, total);
                         },
                         child: const Text(
                           'CHECKOUT',
@@ -394,7 +388,7 @@ class _CheckOutState extends State<CheckOut> {
       'phone': _phoneController.text,
       'location': _locationController.text,
       'total': total,
-      'status': 'Ongoing', // Set the delivery status to "Ongoing"
+      'status': 'Ongoing',
       'items': cartItems.map((item) {
         return {
           'name': item.menuModel.name,
@@ -408,8 +402,13 @@ class _CheckOutState extends State<CheckOut> {
 
     await FirebaseFirestore.instance.collection('orders').doc(orderId).set(orderData);
 
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order placed successfully!')));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentMethodSelection(orderId: orderId),
+      ),
+    );
+    //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order placed successfully!')));
 
     // Optionally clear checkout items after placing order
     await _clearCheckoutItems(userUid);

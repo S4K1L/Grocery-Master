@@ -306,7 +306,7 @@ class _MenuDetailsState extends State<MenuDetails> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '12 pcs - 500 to 900 gm',
+                        menu.subDetails,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.black54,

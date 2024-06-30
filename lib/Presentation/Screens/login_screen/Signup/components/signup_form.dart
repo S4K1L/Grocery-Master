@@ -1,18 +1,19 @@
+import 'dart:io';
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../../../../../../Core/Firebase/Auth.dart';
 import '../../../../../../Theme/const.dart';
 import '../../../../../../Widgets/components/already_have_an_account_acheck.dart';
-import '../../../../../../Widgets/components/constants.dart';
+import '../../../../../Widgets/components/constants.dart';
 import '../../../Bottom_bar/user_bottombar.dart';
-import '../../../routes/app_pages.dart';
 import '../../Login/login_screen.dart';
 
 class SignUpForm extends StatefulWidget {
-  const SignUpForm({
-    Key? key,
-  }) : super(key: key);
+  const SignUpForm({Key? key}) : super(key: key);
 
   @override
   State<SignUpForm> createState() => _SignUpFormState();
@@ -27,14 +28,47 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  void _uploadData() {
+  void _uploadData(String qrCodeUrl) {
     UserDataUploader.uploadUserData(
       name: _nameController.text,
       phone: _phoneController.text,
       email: _emailController.text,
       password: _passwordController.text,
       address: _addressController.text,
+      qrCodeUrl: qrCodeUrl,
     );
+  }
+
+  Future<String> _generateQRCodeAndUpload() async {
+    // Collect user data
+    final userData = {
+      "name": _nameController.text,
+      "phone": _phoneController.text,
+      "email": _emailController.text,
+      "address": _addressController.text,
+    };
+    final userDataString = userData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+
+    final tempDir = await getTemporaryDirectory();
+    final qrCodeFile = File('${tempDir.path}/qr_code.png');
+    final qrValidationPainter = QrPainter(
+      data: userDataString,
+      version: QrVersions.auto,
+      gapless: true,
+    );
+
+    final picData = await qrValidationPainter.toImageData(200);
+    await qrCodeFile.writeAsBytes(picData!.buffer.asUint8List());
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('qr_codes/${DateTime.now().millisecondsSinceEpoch}.png');
+
+    final uploadTask = storageRef.putFile(qrCodeFile);
+    final snapshot = await uploadTask;
+    final qrCodeUrl = await snapshot.ref.getDownloadURL();
+
+    return qrCodeUrl;
   }
 
   void _signUp() async {
@@ -46,9 +80,12 @@ class _SignUpFormState extends State<SignUpForm> {
       String email = _emailController.text;
       String password = _passwordController.text;
 
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential =
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = userCredential.user;
       if (user != null) {
+        final qrCodeUrl = await _generateQRCodeAndUpload();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Row(
@@ -72,13 +109,15 @@ class _SignUpFormState extends State<SignUpForm> {
             elevation: 6,
           ),
         );
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const UserBottom(),
           ),
         );
-        _uploadData();
+
+        _uploadData(qrCodeUrl);
         print("Data uploaded successfully");
         print("User successfully created");
       } else {
@@ -115,7 +154,6 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -136,7 +174,7 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ),
           ),
-          SizedBox(height: defaultPadding,),
+          SizedBox(height: defaultPadding),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -152,7 +190,7 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ),
           ),
-          SizedBox(height: defaultPadding,),
+          SizedBox(height: defaultPadding),
           TextFormField(
             controller: _phoneController,
             keyboardType: TextInputType.emailAddress,
@@ -168,7 +206,7 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ),
           ),
-          SizedBox(height: defaultPadding,),
+          SizedBox(height: defaultPadding),
           TextFormField(
             controller: _addressController,
             keyboardType: TextInputType.emailAddress,
@@ -209,7 +247,10 @@ class _SignUpFormState extends State<SignUpForm> {
               onPressed: () {
                 _signUp();
               },
-              child: Text("Sign Up".toUpperCase(),style: TextStyle(color: kTextWhiteColor),),
+              child: Text(
+                "Sign Up".toUpperCase(),
+                style: TextStyle(color: kTextWhiteColor),
+              ),
             ),
           ),
           const SizedBox(height: defaultPadding),

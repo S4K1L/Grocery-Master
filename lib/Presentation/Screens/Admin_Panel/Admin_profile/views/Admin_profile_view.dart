@@ -1,22 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grocerymaster/Presentation/Screens/Bottom_bar/admin_bottomBar.dart';
 import 'package:grocerymaster/Presentation/Screens/login_screen/Login/login_screen.dart';
 import '../../../../../Core/Repository_and_Authentication/custom_buttons.dart';
 import '../../../../../Core/Repository_and_Authentication/profile_image_picker.dart';
-import '../../../../../Core/Repository_and_Authentication/services/auth.dart';
 import '../../../../../Theme/const.dart';
-import '../../Bottom_bar/user_bottombar.dart';
 
-class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
+class AdminProfileView extends StatefulWidget {
+  const AdminProfileView({super.key});
 
   @override
-  State<ProfileView> createState() => _ProfileViewState();
+  State<AdminProfileView> createState() => _AdminProfileViewState();
 }
 
-class _ProfileViewState extends State<ProfileView> {
-  final AuthService _auth = AuthService();
+class _AdminProfileViewState extends State<AdminProfileView> {
   Map<String, dynamic> userData = {};
 
   // Function to fetch user data from Firebase
@@ -70,7 +68,7 @@ class _ProfileViewState extends State<ProfileView> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => UserBottom(),
+                            builder: (context) => AdminBottom(),
                           ),
                         );
                       },
@@ -117,30 +115,11 @@ class _ProfileViewState extends State<ProfileView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           kHalfSizeBox,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: [
-                                ProfileImagePicker(),
-                                Spacer(),
-                                if (userData['qrCodeUrl'] != null)
-                                  Image.network(
-                                    userData['qrCodeUrl'],
-                                    width: 100,
-                                    height: 100,
-                                  ),
-                              ],
-                            ),
-                          ),
+                          ProfileImagePicker(),
                           SizedBox(height: 20),
                           ProfileDataColumn(
                             title: 'Name : ',
                             value: userData['name'] ?? '',
-                          ),
-                          SizedBox(height: 20),
-                          ProfileDataColumn(
-                            title: 'Phone : ',
-                            value: userData['phone'] ?? '',
                           ),
                           SizedBox(height: 20),
                           ProfileDataColumn(
@@ -171,14 +150,14 @@ class _ProfileViewState extends State<ProfileView> {
       ),
     );
   }
-
   signOut() async {
     await FirebaseAuth.instance.signOut();
     Future.microtask(() {
       if (mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(
+              builder: (context) => LoginScreen()),
         );
       }
     });
@@ -196,9 +175,7 @@ class ProfileDataColumn extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey[300],
-      ),
+          borderRadius: BorderRadius.circular(8), color: Colors.grey[300]),
       child: Padding(
         padding: const EdgeInsets.only(left: 20, top: 20),
         child: Row(
