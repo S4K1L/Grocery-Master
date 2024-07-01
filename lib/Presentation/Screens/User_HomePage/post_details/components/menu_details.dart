@@ -198,6 +198,7 @@ class _MenuDetailsState extends State<MenuDetails> {
         shrinkWrap: true,
         children: [
           Container(
+            height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
