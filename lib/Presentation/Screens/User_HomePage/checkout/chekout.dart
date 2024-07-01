@@ -64,12 +64,15 @@ class _CheckOutState extends State<CheckOut> {
           } else {
             final cartItems = snapshot.data!;
             double subTotal = 0;
+            String menuId = '';
             for (var item in cartItems) {
               int price = item.menuModel.price;
               subTotal += price * item.quantity;
+              menuId = item.menuModel.docId;
             }
             double deliveryFee = 2.0;
             double total = subTotal + deliveryFee;
+
 
             return Padding(
               padding: const EdgeInsets.all(10.0),
@@ -96,7 +99,7 @@ class _CheckOutState extends State<CheckOut> {
                           color: Colors.green[600]),
                       child: TextButton(
                         onPressed: () {
-                          _showCheckoutDialog(context, cartItems, total);
+                          _showCheckoutDialog(context, cartItems, total, menuId);
                         },
                         child: const Text(
                           'CHECKOUT',
@@ -308,7 +311,7 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
-  void _showCheckoutDialog(BuildContext context, List<MenuModelWithQuantity> cartItems, double total) {
+  void _showCheckoutDialog(BuildContext context, List<MenuModelWithQuantity> cartItems, double total, String menuId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -383,7 +386,6 @@ class _CheckOutState extends State<CheckOut> {
 
     final orderData = {
       'orderId': orderId,
-      'userUid': userUid,
       'name': _nameController.text,
       'phone': _phoneController.text,
       'location': _locationController.text,
@@ -393,8 +395,9 @@ class _CheckOutState extends State<CheckOut> {
         return {
           'name': item.menuModel.name,
           'price': item.menuModel.price,
+          'docId': item.menuModel.docId,
           'quantity': item.quantity,
-          'imageUrl': item.menuModel.imageUrl, // Store the picture URL
+          'imageUrl': item.menuModel.imageUrl,
         };
       }).toList(),
       'timestamp': FieldValue.serverTimestamp(),
@@ -405,12 +408,10 @@ class _CheckOutState extends State<CheckOut> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentMethodSelection(orderId: orderId),
+        builder: (context) => PaymentMethodSelection(orderId: orderId, docId: '',),
       ),
     );
-    //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order placed successfully!')));
 
-    // Optionally clear checkout items after placing order
     await _clearCheckoutItems(userUid);
     setState(() {});
   }

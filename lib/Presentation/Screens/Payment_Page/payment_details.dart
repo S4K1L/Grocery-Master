@@ -8,8 +8,9 @@ import '../User_HomePage/checkout/chekout.dart';
 class PaymentDetailsPage extends StatefulWidget {
   final String orderId;
   final String paymentMethod;
+  final String docId;
 
-  PaymentDetailsPage({required this.paymentMethod, required this.orderId});
+  PaymentDetailsPage({required this.paymentMethod, required this.orderId, required this.docId});
 
   @override
   State<PaymentDetailsPage> createState() => _PaymentDetailsPageState();
@@ -21,8 +22,10 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
   final TextEditingController cardHolderNameController = TextEditingController();
   final TextEditingController expireController = TextEditingController();
   final TextEditingController cvvController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
   final List<MenuModelWithQuantity> cartItems = [];
   double total = 0.0;
+  int _rating = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -172,18 +175,78 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
 
       await orderCollection.set(orderData, SetOptions(merge: true));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Payment successfully"),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UserBottom(), // Navigate to the checkout page
-        ),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            child: AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Image.asset('assets/images/rating_image.png'),
+                  SizedBox(height: 16),
+                  Text(
+                    'Rate your experience with us!',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _rating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      labelText: 'Leave a comment',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green[300],
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        await _submitRating();
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Payment successfully"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserBottom(), // Navigate to the checkout page
+                          ),
+                        );
+                      },
+                      child: Text('Submit',style: TextStyle(color: kTextBlackColor),),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -192,6 +255,25 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  Future<void> _submitRating() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('menu')
+          .doc(widget.docId)
+          .update({
+        'rating': _rating,
+        'comment': _commentController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      _commentController.clear();
+      setState(() {
+        _rating = 0;
+      });
+    } catch (e) {
+      print('Failed to submit rating: $e');
     }
   }
 }

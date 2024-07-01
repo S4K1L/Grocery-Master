@@ -15,8 +15,6 @@ class MenuDetails extends StatefulWidget {
 }
 
 class _MenuDetailsState extends State<MenuDetails> {
-  final TextEditingController _commentController = TextEditingController();
-  double _rating = 0;
   double _averageRating = 0;
   int _totalRatings = 0;
   int _itemCount = 0;
@@ -107,24 +105,6 @@ class _MenuDetailsState extends State<MenuDetails> {
         _averageRating = totalRating / _totalRatings;
       });
     }
-  }
-
-  Future<void> _submitRating() async {
-    await FirebaseFirestore.instance
-        .collection('menu')
-        .doc(widget.menu.docId)
-        .collection('ratings')
-        .add({
-      'rating': _rating,
-      'comment': _commentController.text,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    _fetchRatings();
-    _commentController.clear();
-    setState(() {
-      _rating = 0;
-    });
   }
 
   void _toggleFavorite(MenuModel menu) async {
@@ -232,42 +212,13 @@ class _MenuDetailsState extends State<MenuDetails> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            menu.name,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Rating',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  _averageRating.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      Text(
+                        menu.name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -330,88 +281,6 @@ class _MenuDetailsState extends State<MenuDetails> {
                           height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 120),
-                      Text(
-                        'Comments',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('menu')
-                            .doc(menu.docId)
-                            .collection('ratings')
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-                          if (snapshot.data!.docs.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(appPadding),
-                              child: Text('No comments yet.'),
-                            );
-                          }
-                          return ListView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            children: snapshot.data!.docs.map((doc) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 10, bottom: 40),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        doc['comment'],
-                                        style: TextStyle(
-                                          color: kTextBlackColor.withOpacity(0.6),
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${doc['rating'].toStringAsFixed(1)}',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
-                      TextFormField(
-                        controller: _commentController,
-                        decoration: InputDecoration(
-                          hintText: 'Leave a comments',
-                          hintStyle: TextStyle(
-                            color: Colors.lightGreenAccent[600],
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width / 1.5,
-                          child: ElevatedButton(
-                            onPressed: _submitRating,
-                            child: const Text(
-                              'Submit',
-                              style: TextStyle(color: kTextWhiteColor),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

@@ -5,7 +5,10 @@ import '../../../Theme/const.dart';
 
 class PaymentMethodSelection extends StatefulWidget {
   final String orderId;
-  PaymentMethodSelection({required this.orderId});
+  final String docId;
+
+
+  PaymentMethodSelection({required this.orderId, required this.docId});
   @override
   _PaymentMethodSelectionState createState() => _PaymentMethodSelectionState();
 }
@@ -123,7 +126,7 @@ class _PaymentMethodSelectionState extends State<PaymentMethodSelection> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  PaymentDetailsPage(paymentMethod: _selectedMethod,orderId: widget.orderId,),
+                  PaymentDetailsPage(paymentMethod: _selectedMethod,orderId: widget.orderId, docId: '',),
             ),
           );
         },
