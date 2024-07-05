@@ -73,7 +73,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
             backgroundImage: MemoryImage(_image!),
           )
               : FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-            future: _firestore.collection('users').doc(_auth.currentUser!.uid).get(),
+            future: _firestore.collection('users').doc(_auth.currentUser?.uid).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();

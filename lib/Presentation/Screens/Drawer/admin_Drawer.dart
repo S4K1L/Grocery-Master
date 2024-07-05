@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:grocerymaster/Presentation/Screens/login_screen/Login/login_screen.dart';
 import '../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../Theme/const.dart';
+import '../Admin_Panel/Approve_barcode/approve_barcode.dart';
 import '../Admin_Panel/Create_Menu/create_menu.dart';
+import '../Admin_Panel/Create_voucher/create_voucher.dart';
+import '../Admin_Panel/Create_voucher/voucher_list.dart';
 import '../Bottom_bar/admin_bottomBar.dart';
-import '../welcome/views/welcome_view.dart';
 
 
 class AdminDrawer extends StatefulWidget {
@@ -60,7 +60,6 @@ class _AdminDrawerState extends State<AdminDrawer> {
                   );
                 },
               ),
-              const SizedBox(height: 20),
               _buildDrawerButton(
                 context,
                 icon: Icons.add_business_outlined,
@@ -72,6 +71,41 @@ class _AdminDrawerState extends State<AdminDrawer> {
                   );
                 },
               ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.crop_free,
+                label: 'Create Voucher',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreateVoucherPage()),
+                  );
+                },
+              ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.qr_code_sharp,
+                label: 'Voucher List',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const VoucherListPage()),
+                  );
+                },
+              ),
+
+              _buildDrawerButton(
+                context,
+                icon: Icons.qr_code_scanner_sharp,
+                label: 'Approve Barcode',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ApproveBarcodePage()),
+                  );
+                },
+              ),
+
             ],
           ),
         ],
@@ -83,7 +117,7 @@ class _AdminDrawerState extends State<AdminDrawer> {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         backgroundColor: Colors.transparent,
       ),
       child: Row(

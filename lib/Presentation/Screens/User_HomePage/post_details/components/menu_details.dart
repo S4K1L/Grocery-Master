@@ -15,14 +15,11 @@ class MenuDetails extends StatefulWidget {
 }
 
 class _MenuDetailsState extends State<MenuDetails> {
-  double _averageRating = 0;
-  int _totalRatings = 0;
   int _itemCount = 0;
   final Map<String, bool> _favorites = {};
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, int> _quantities = {};
   User? _user;
-  late Stream<List<MenuModel>> _menuStream;
 
   @override
   void initState() {
@@ -96,13 +93,9 @@ class _MenuDetailsState extends State<MenuDetails> {
         .get();
 
     if (ratingsSnapshot.docs.isNotEmpty) {
-      double totalRating = 0;
       for (var doc in ratingsSnapshot.docs) {
-        totalRating += doc['rating'];
       }
       setState(() {
-        _totalRatings = ratingsSnapshot.docs.length;
-        _averageRating = totalRating / _totalRatings;
       });
     }
   }

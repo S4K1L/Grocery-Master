@@ -56,13 +56,8 @@ class AccountsDB {
     var listOfAccount = [];
 
     await accountReference.get().then((ss) {
-      if (ss != null) {
-        listOfAccount = ss.docs.toList();
-      } else {
-        print("got no accounts");
-        return [];
-      }
-    });
+      listOfAccount = ss.docs.toList();
+        });
 
     return listOfAccount;
   }

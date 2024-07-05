@@ -6,6 +6,7 @@ import '../../../Core/Repository_and_Authentication/profile_image_picker.dart';
 import '../../../Theme/const.dart';
 import '../Bottom_bar/user_bottombar.dart';
 import '../User_HomePage/Cart_Manu/cart_menu.dart';
+import '../User_HomePage/Membership/membership.dart';
 import '../User_HomePage/checkout/chekout.dart';
 import '../User_HomePage/My_Order/my_order.dart';
 import '../User_HomePage/Order_History/order_history.dart';
@@ -94,7 +95,6 @@ class _UserDrawerState extends State<UserDrawer> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
                _buildDrawerButton(
                 context,
                 icon: Icons.person,
@@ -108,21 +108,6 @@ class _UserDrawerState extends State<UserDrawer> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              _buildDrawerButton(
-                context,
-                icon: Icons.favorite,
-                label: 'My Favorite',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FavoriteScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
               _buildDrawerButton(
                 context,
                 icon: Icons.shopping_cart,
@@ -136,35 +121,6 @@ class _UserDrawerState extends State<UserDrawer> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              _buildDrawerButton(
-                context,
-                icon: Icons.shopping_cart_checkout,
-                label: 'My Orders',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MyOrders(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildDrawerButton(
-                context,
-                icon: Icons.manage_history_rounded,
-                label: 'Order History',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OrderHistory(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
               _buildDrawerButton(
                 context,
                 icon: Icons.check_box_sharp,
@@ -178,6 +134,59 @@ class _UserDrawerState extends State<UserDrawer> {
                   );
                 },
               ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.shopping_cart_checkout,
+                label: 'My Orders',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyOrders(),
+                    ),
+                  );
+                },
+              ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.favorite,
+                label: 'My Favorite',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoriteScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.manage_history_rounded,
+                label: 'Order History',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OrderHistory(),
+                    ),
+                  );
+                },
+              ),
+              _buildDrawerButton(
+                context,
+                icon: Icons.card_membership,
+                label: 'Membership',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Membership(),
+                    ),
+                  );
+                },
+              ),
+
             ],
           ),
         ],
@@ -192,17 +201,17 @@ class _UserDrawerState extends State<UserDrawer> {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         backgroundColor: Colors.transparent,
       ),
       child: Row(
         children: [
-          Icon(icon, size: 36, color: Colors.green),
+          Icon(icon, size: 32, color: Colors.green),
           const SizedBox(width: 30),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 18,
               color: Colors.green,
               fontWeight: FontWeight.bold,
             ),

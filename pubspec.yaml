@@ -41,7 +41,6 @@ dependencies:
   flutter_launcher_icons: # change app icon
   change_app_package_name: # change package name
   rename_app: # rename app
-  flutter_svg: # for svg icons
   carousel_slider: # for image slider
   badges: # for badges
   flutter_animate: # for animation
@@ -56,6 +55,9 @@ dependencies:
   percent_indicator: ^4.2.3
   flutter_rating_stars: ^1.1.0
   qr_flutter: ^4.1.0
+  barcode: ^2.1.0
+  flutter_svg: ^1.0.3
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:

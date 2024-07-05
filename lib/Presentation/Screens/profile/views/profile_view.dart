@@ -119,18 +119,7 @@ class _ProfileViewState extends State<ProfileView> {
                           kHalfSizeBox,
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: [
-                                ProfileImagePicker(),
-                                Spacer(),
-                                if (userData['qrCodeUrl'] != null)
-                                  Image.network(
-                                    userData['qrCodeUrl'],
-                                    width: 100,
-                                    height: 100,
-                                  ),
-                              ],
-                            ),
+                            child: ProfileImagePicker(),
                           ),
                           SizedBox(height: 20),
                           ProfileDataColumn(

@@ -46,6 +46,8 @@ class _SignUpFormState extends State<SignUpForm> {
       "phone": _phoneController.text,
       "email": _emailController.text,
       "address": _addressController.text,
+      "discount": '0',
+      "permission": 'Denied',
     };
     final userDataString = userData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
 
@@ -95,7 +97,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 Expanded(
                   child: Text(
                     "Welcome Grocery Master",
-                    style: TextStyle(color: Colors.red, fontSize: 16),
+                    style: TextStyle(color: Colors.green, fontSize: 16),
                   ),
                 ),
               ],
