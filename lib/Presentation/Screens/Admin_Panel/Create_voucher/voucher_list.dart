@@ -5,6 +5,10 @@ import '../../../../../Theme/const.dart';
 class VoucherListPage extends StatelessWidget {
   const VoucherListPage({Key? key}) : super(key: key);
 
+  void _deleteVoucher(String voucherId) {
+    FirebaseFirestore.instance.collection('vouchers').doc(voucherId).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,18 +36,32 @@ class VoucherListPage extends StatelessWidget {
               final voucher = vouchers[index];
               final voucherData = voucher.data() as Map<String, dynamic>;
               final voucherName = voucherData['name'] ?? 'No name';
+              final voucherCode = voucherData['code'] ?? 'No code';
               final discount = voucherData['discount'] ?? '0';
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.green[300]
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green[300]
                   ),
                   child: ListTile(
-                    title: Text('Voucher Code: ${voucherName}'),
-                    subtitle: Text('Discount: $discount%'),
+                    title: Expanded(child: Text('Name: $voucherName')),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text('Code: $voucherCode'),
+                        Text('Discount: $discount%'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete,color: Colors.red,),
+                      onPressed: () {
+                        _deleteVoucher(voucher.id);
+                      },
+                    ),
                   ),
                 ),
               );

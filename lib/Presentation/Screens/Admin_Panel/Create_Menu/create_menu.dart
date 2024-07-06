@@ -170,7 +170,7 @@ class _CreateMenuState extends State<CreateMenu> {
         backgroundColor: kTextWhiteColor,
         centerTitle: true,
         title: const Text(
-          'Create Manu',
+          'Create Menu',
           style: TextStyle(color: Colors.green),
         ),
       ),
