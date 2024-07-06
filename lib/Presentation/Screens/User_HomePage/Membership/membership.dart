@@ -87,7 +87,7 @@ class _MembershipState extends State<Membership> {
         });
 
         setState(() {
-          discountMessage = 'Discount applied: \$${discountAmount}';
+          discountMessage = 'Discount applied: RM ${discountAmount}';
           userData['barcodeUrl'] = qrCodeUrl;
         });
       } else {
@@ -162,7 +162,7 @@ class _MembershipState extends State<Membership> {
                           color: kPrimaryColor),
                     ),
                     Spacer(),
-                    Icon(Icons.error, color: kPrimaryColor),
+                    Icon(Icons.minimize, color: kTextWhiteColor),
                   ],
                 ),
               ],
@@ -190,7 +190,7 @@ class _MembershipState extends State<Membership> {
                         children: [
                           kHalfSizeBox,
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.only(left:  10,right: 10),
                             child: Column(
                               children: [
                                 if (userData['barcodeUrl'] != null)
@@ -202,7 +202,7 @@ class _MembershipState extends State<Membership> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 200),
+                          SizedBox(height: 100),
                           TextFormField(
                             controller: _voucherController,
                             decoration: InputDecoration(

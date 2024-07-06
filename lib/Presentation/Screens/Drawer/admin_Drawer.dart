@@ -21,94 +21,96 @@ class _AdminDrawerState extends State<AdminDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 3.5,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.green[300]
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height / 3.5,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.green[300]
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: const Center(child: ProfileImagePicker()),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Admin Profile',
+                    style: TextStyle(fontSize: 20, color: kTextBlackColor),
+                  )
+                ],
+              ),
             ),
-            child: Column(
+            const SizedBox(height: 20),
+            Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: const Center(child: ProfileImagePicker()),
+                _buildDrawerButton(
+                  context,
+                  icon: Icons.home_outlined,
+                  label: 'Home',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminBottom(),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Admin Profile',
-                  style: TextStyle(fontSize: 20, color: kTextBlackColor),
-                )
+                _buildDrawerButton(
+                  context,
+                  icon: Icons.add_business_outlined,
+                  label: 'Add Menu',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreateMenu()),
+                    );
+                  },
+                ),
+                _buildDrawerButton(
+                  context,
+                  icon: Icons.crop_free,
+                  label: 'Create Voucher',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreateVoucherPage()),
+                    );
+                  },
+                ),
+                _buildDrawerButton(
+                  context,
+                  icon: Icons.qr_code_sharp,
+                  label: 'Voucher List',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const VoucherListPage()),
+                    );
+                  },
+                ),
+        
+                _buildDrawerButton(
+                  context,
+                  icon: Icons.qr_code_scanner_sharp,
+                  label: 'Approve Barcode',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ApproveBarcodePage()),
+                    );
+                  },
+                ),
+        
               ],
             ),
-          ),
-          const SizedBox(height: 20),
-          Column(
-            children: [
-              _buildDrawerButton(
-                context,
-                icon: Icons.home_outlined,
-                label: 'Home',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminBottom(),
-                    ),
-                  );
-                },
-              ),
-              _buildDrawerButton(
-                context,
-                icon: Icons.add_business_outlined,
-                label: 'Add Menu',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CreateMenu()),
-                  );
-                },
-              ),
-              _buildDrawerButton(
-                context,
-                icon: Icons.crop_free,
-                label: 'Create Voucher',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CreateVoucherPage()),
-                  );
-                },
-              ),
-              _buildDrawerButton(
-                context,
-                icon: Icons.qr_code_sharp,
-                label: 'Voucher List',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const VoucherListPage()),
-                  );
-                },
-              ),
-
-              _buildDrawerButton(
-                context,
-                icon: Icons.qr_code_scanner_sharp,
-                label: 'Approve Barcode',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ApproveBarcodePage()),
-                  );
-                },
-              ),
-
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
