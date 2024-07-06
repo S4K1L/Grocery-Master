@@ -5,10 +5,9 @@ import '../../../Theme/const.dart';
 
 class PaymentMethodSelection extends StatefulWidget {
   final String orderId;
-  final String docId;
 
 
-  PaymentMethodSelection({required this.orderId, required this.docId});
+  PaymentMethodSelection({required this.orderId});
   @override
   _PaymentMethodSelectionState createState() => _PaymentMethodSelectionState();
 }

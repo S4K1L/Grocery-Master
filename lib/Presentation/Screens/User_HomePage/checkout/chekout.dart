@@ -21,6 +21,36 @@ class _CheckOutState extends State<CheckOut> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  double? _discountPercentage = 0.0;
+  double discountMoney = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDiscount();
+  }
+
+  Future<void> _fetchUserDiscount() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    if (user == null) {
+      return;
+    }
+    final userUid = user.uid;
+
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userUid).get();
+
+    // Ensure the user's permission is approved before fetching the discount
+    if (userDoc.get('permission') == 'Approved') {
+      setState(() {
+        _discountPercentage = (userDoc.get('discount') as num).toDouble();
+      });
+    } else {
+      setState(() {
+        _discountPercentage = 0.0;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +96,15 @@ class _CheckOutState extends State<CheckOut> {
             double subTotal = 0;
             String menuId = '';
             for (var item in cartItems) {
-              int price = item.menuModel.price;
+              double price = item.menuModel.price;
               subTotal += price * item.quantity;
               menuId = item.menuModel.docId;
             }
             double deliveryFee = 2.0;
             double total = subTotal + deliveryFee;
-
-
+            double discount = _discountPercentage != null ? (subTotal / 100) * _discountPercentage! : 0.0;
+            discountMoney = discount;
+            double totalWithDiscount = total - discount;
             return Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -87,7 +118,7 @@ class _CheckOutState extends State<CheckOut> {
                       },
                     ),
                   ),
-                  _buildPaymentDetails(subTotal, deliveryFee, total),
+                  _buildPaymentDetails(subTotal, deliveryFee, discount, totalWithDiscount),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20),
@@ -99,7 +130,7 @@ class _CheckOutState extends State<CheckOut> {
                           color: Colors.green[600]),
                       child: TextButton(
                         onPressed: () {
-                          _showCheckoutDialog(context, cartItems, total, menuId);
+                          _showCheckoutDialog(context, cartItems, totalWithDiscount, menuId);
                         },
                         child: const Text(
                           'CHECKOUT',
@@ -139,13 +170,13 @@ class _CheckOutState extends State<CheckOut> {
       final moreImagesUrl = data['moreImagesUrl'] as List<dynamic>;
 
       // Ensure the price is treated as an integer
-      int price = 0;
+      double price = 0;
       if (data['price'] is int) {
-        price = data['price'];
+        price = double.tryParse(data['price']) ?? 0.0;
       } else if (data['price'] is double) {
-        price = data['price'].toInt();
+        price = data['price'];
       } else if (data['price'] is String) {
-        price = int.tryParse(data['price']) ?? 0;
+        price = double.tryParse(data['price']) ?? 0.0;
       }
 
       int quantity = data['quantity'] ?? 1;
@@ -255,7 +286,7 @@ class _CheckOutState extends State<CheckOut> {
   }
 
   Widget _buildPaymentDetails(
-      double subTotal, double deliveryFee, double total) {
+      double subTotal, double deliveryFee, double discount, double totalWithDiscount) {
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
@@ -278,12 +309,15 @@ class _CheckOutState extends State<CheckOut> {
           ),
           _buildPaymentDetailRow('Sub Total', subTotal),
           _buildPaymentDetailRow('Delivery Fee', deliveryFee),
+          if (_discountPercentage != null && _discountPercentage! > 0)
+            _buildPaymentDetailRow('Discount (${_discountPercentage!.toStringAsFixed(2)}%)', -discount),
           const Divider(),
-          _buildPaymentDetailRow('Total', total, isTotal: true),
+          _buildPaymentDetailRow('Total', totalWithDiscount, isTotal: true),
         ],
       ),
     );
   }
+
 
   Widget _buildPaymentDetailRow(String label, double amount,
       {bool isTotal = false}) {
@@ -361,7 +395,7 @@ class _CheckOutState extends State<CheckOut> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => _handleCheckout(context, cartItems, total),
+              onPressed: () => _handleCheckout(context, cartItems, total, discountMoney),
               child: const Text('Submit'),
             ),
           ],
@@ -370,7 +404,7 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
-  Future<void> _handleCheckout(BuildContext context, List<MenuModelWithQuantity> cartItems, double total) async {
+  Future<void> _handleCheckout(BuildContext context, List<MenuModelWithQuantity> cartItems, double total, double discount) async {
     if (_formKey.currentState?.validate() != true) {
       return;
     }
@@ -389,6 +423,7 @@ class _CheckOutState extends State<CheckOut> {
       'name': _nameController.text,
       'phone': _phoneController.text,
       'location': _locationController.text,
+      'discount': discount,
       'total': total,
       'status': 'Ongoing',
       'items': cartItems.map((item) {
@@ -408,7 +443,7 @@ class _CheckOutState extends State<CheckOut> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentMethodSelection(orderId: orderId, docId: '',),
+        builder: (context) => PaymentMethodSelection(orderId: orderId),
       ),
     );
 

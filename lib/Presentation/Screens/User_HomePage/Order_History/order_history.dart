@@ -81,7 +81,6 @@ class _OrderHistoryState extends State<OrderHistory> {
         final item = itemData as Map<String, dynamic>;
         return OrderItem(
           name: item['name'],
-          price: item['price'],
           quantity: item['quantity'],
           imageUrl: item['imageUrl'],
         );
@@ -149,7 +148,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                   trailing: Column(
                     children: [
                       Text(
-                        'RM ${(item.price * item.quantity).toStringAsFixed(2)}',
+                        'RM ${order.total}',
                         style: const TextStyle(fontSize: 14),
                       ),
                       const SizedBox(
@@ -195,13 +194,11 @@ class Order {
 
 class OrderItem {
   final String name;
-  final int price;
   final int quantity;
   final String imageUrl;
 
   OrderItem({
     required this.name,
-    required this.price,
     required this.quantity,
     required this.imageUrl,
   });

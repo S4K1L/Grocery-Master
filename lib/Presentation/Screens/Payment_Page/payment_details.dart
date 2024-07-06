@@ -167,7 +167,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
       };
 
       final orderData = {
-        "userId": user.uid,
+        "userUid": user.uid,
         "paymentData": paymentData,
       };
 

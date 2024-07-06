@@ -254,21 +254,10 @@ class _AdminMenuPostState extends State<AdminMenuPost> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right: 10,left: 10),
-          child: Row(
-            children: [
-              Text(_selectedCategory,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
-              Spacer(),
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  alignment: Alignment.topRight,
-                  onPressed: () {},
-                  icon: Icon(Icons.sort_sharp, color: Colors.green),
-                ),
-              ),
-            ],
-          ),
+          padding: const EdgeInsets.only(right: 10,left: 30),
+          child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(_selectedCategory,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
         ),
         Flexible(
           child: StreamBuilder<List<MenuModel>>(

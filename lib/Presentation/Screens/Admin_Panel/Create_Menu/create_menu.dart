@@ -52,8 +52,8 @@ class _CreateMenuState extends State<CreateMenu> {
 
         if (firebaseUser != null) {
           String name = _nameController.text;
-          int? price =
-              int.tryParse(_priceController.text); // Convert price to int
+          double? price =
+              double.tryParse(_priceController.text); // Convert price to int
           String details = _detailsController.text;
           String subDetails = _subDetailsController.text;
 
@@ -342,8 +342,8 @@ class _CreateMenuState extends State<CreateMenu> {
           if (value == null || value.isEmpty) {
             return 'Please enter $labelText';
           }
-          if (labelText == 'Price' && int.tryParse(value) == null) {
-            return 'Please enter a valid integer price';
+          if (labelText == 'Price' && double.tryParse(value) == null) {
+            return 'Please enter a valid double price';
           }
           return null;
         },
