@@ -190,7 +190,7 @@ class _UserDrawerState extends State<UserDrawer> {
                 ),
                 _buildDrawerButton(
                   context,
-                  icon: Icons.card_membership,
+                  icon: Icons.format_list_bulleted,
                   label: 'Voucher List',
                   onPressed: () {
                     Navigator.push(

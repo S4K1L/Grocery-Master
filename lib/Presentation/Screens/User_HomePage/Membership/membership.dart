@@ -202,7 +202,7 @@ class _MembershipState extends State<Membership> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 100),
+                          SizedBox(height: 50),
                           TextFormField(
                             controller: _voucherController,
                             decoration: InputDecoration(
