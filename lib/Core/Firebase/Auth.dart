@@ -32,7 +32,7 @@ class UserDataUploader {
     required String? email,
     required String? password,
     required String? address,
-    required String? qrCodeUrl,
+    required String? barcodeUrl,
   }) async {
     try {
       User? firebaseUser = FirebaseAuth.instance.currentUser;
@@ -47,7 +47,7 @@ class UserDataUploader {
           "name": name,
           "phone": phone,
           "email": email,
-          "qrCodeUrl": qrCodeUrl,
+          "barcodeUrl": barcodeUrl,
           "password": password,
           "address": address,
           "type": 'user',

@@ -4,10 +4,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
 import '../../../../Core/Repository_and_Authentication/custom_buttons.dart';
 import '../../../../Theme/const.dart';
 
@@ -81,15 +80,15 @@ class _MembershipState extends State<Membership> {
           'usedVouchers': FieldValue.arrayUnion([voucherCode]),
         });
 
-        String qrCodeUrl = await _generateQRCodeAndUpload(userUID, discountAmount);
+        String qrCodeUrl = await _generateBarcodeAndUpload(userUID, discountAmount);
 
         await FirebaseFirestore.instance.collection('users').doc(userUID).update({
-          'qrCodeUrl': qrCodeUrl,
+          'barcodeUrl': qrCodeUrl,
         });
 
         setState(() {
           discountMessage = 'Discount applied: \$${discountAmount}';
-          userData['qrCodeUrl'] = qrCodeUrl;
+          userData['barcodeUrl'] = qrCodeUrl;
         });
       } else {
         setState(() {
@@ -103,8 +102,7 @@ class _MembershipState extends State<Membership> {
       });
     }
   }
-
-  Future<String> _generateQRCodeAndUpload(String userUID, int discount) async {
+  Future<String> _generateBarcodeAndUpload(String userUID, int discount) async {
     // Collect user data
     final userData = {
       "name": this.userData['name'],
@@ -116,26 +114,23 @@ class _MembershipState extends State<Membership> {
     };
     final userDataString = userData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
 
-    final tempDir = await getTemporaryDirectory();
-    final qrCodeFile = File('${tempDir.path}/qr_code.png');
-    final qrValidationPainter = QrPainter(
-      data: userDataString,
-      version: QrVersions.auto,
-      gapless: true,
-    );
+    // Generate the barcode using PDF417
+    final barcode = Barcode.pdf417();
+    final svg = barcode.toSvg(userDataString, width: 300, height: 80);
 
-    final picData = await qrValidationPainter.toImageData(200);
-    await qrCodeFile.writeAsBytes(picData!.buffer.asUint8List());
+    final tempDir = await getTemporaryDirectory();
+    final barcodeFile = File('${tempDir.path}/barcode.svg');
+    await barcodeFile.writeAsString(svg);
 
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child('qr_codes/${DateTime.now().millisecondsSinceEpoch}.png');
+        .child('barcodes/${DateTime.now().millisecondsSinceEpoch}.svg');
 
-    final uploadTask = storageRef.putFile(qrCodeFile);
+    final uploadTask = storageRef.putFile(barcodeFile);
     final snapshot = await uploadTask;
-    final qrCodeUrl = await snapshot.ref.getDownloadURL();
+    final barcodeUrl = await snapshot.ref.getDownloadURL();
 
-    return qrCodeUrl;
+    return barcodeUrl;
   }
 
   @override
@@ -198,9 +193,9 @@ class _MembershipState extends State<Membership> {
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Column(
                               children: [
-                                if (userData['qrCodeUrl'] != null)
-                                  Image.network(
-                                    userData['qrCodeUrl'],
+                                if (userData['barcodeUrl'] != null)
+                                  SvgPicture.network(
+                                    userData['barcodeUrl'],
                                     width: 250,
                                     height: 250,
                                   ),

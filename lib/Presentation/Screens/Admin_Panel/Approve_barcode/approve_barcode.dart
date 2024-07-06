@@ -1,11 +1,9 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:barcode/barcode.dart';
 import '../../../../../Theme/const.dart';
 
 class ApproveBarcodePage extends StatefulWidget {
@@ -21,8 +19,8 @@ class _ApproveBarcodePageState extends State<ApproveBarcodePage> {
   Future<void> _updatePermission(String userId, String permission) async {
     try {
       await _firestore.collection('users').doc(userId).update({'permission': permission});
-      String qrCodeUrl = await _generateQRCodeAndUpload(userId, permission);
-      await _firestore.collection('users').doc(userId).update({'qrCodeUrl': qrCodeUrl});
+      String barcodeUrl = await _generateBarcodeAndUpload(userId, permission);
+      await _firestore.collection('users').doc(userId).update({'barcodeUrl': barcodeUrl});
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -32,7 +30,7 @@ class _ApproveBarcodePageState extends State<ApproveBarcodePage> {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  "Permission and QR code updated successfully!",
+                  "Permission and Barcode updated successfully!",
                   style: TextStyle(color: Colors.green, fontSize: 16),
                 ),
               ),
@@ -52,12 +50,12 @@ class _ApproveBarcodePageState extends State<ApproveBarcodePage> {
     }
   }
 
-  Future<String> _generateQRCodeAndUpload(String userId, String permission) async {
+  Future<String> _generateBarcodeAndUpload(String userId, String permission) async {
     DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
-    // Collect user data for QR code
-    final qrData = {
+    // Collect user data for Barcode
+    final barcodeData = {
       "name": userData['name'],
       "phone": userData['phone'],
       "email": userData['email'],
@@ -65,28 +63,25 @@ class _ApproveBarcodePageState extends State<ApproveBarcodePage> {
       "discount": userData['discount'].toString(),
       "permission": permission,
     };
-    final qrDataString = qrData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+    final barcodeDataString = barcodeData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+
+    // Generate the barcode using PDF417
+    final barcode = Barcode.pdf417();
+    final svg = barcode.toSvg(barcodeDataString, width: 200, height: 80);
 
     final tempDir = await getTemporaryDirectory();
-    final qrCodeFile = File('${tempDir.path}/qr_code.png');
-    final qrValidationPainter = QrPainter(
-      data: qrDataString,
-      version: QrVersions.auto,
-      gapless: true,
-    );
-
-    final picData = await qrValidationPainter.toImageData(200);
-    await qrCodeFile.writeAsBytes(picData!.buffer.asUint8List());
+    final barcodeFile = File('${tempDir.path}/barcode.svg');
+    await barcodeFile.writeAsString(svg);
 
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child('qr_codes/${DateTime.now().millisecondsSinceEpoch}.png');
+        .child('barcodes/${DateTime.now().millisecondsSinceEpoch}.svg');
 
-    final uploadTask = storageRef.putFile(qrCodeFile);
+    final uploadTask = storageRef.putFile(barcodeFile);
     final snapshot = await uploadTask;
-    final qrCodeUrl = await snapshot.ref.getDownloadURL();
+    final barcodeUrl = await snapshot.ref.getDownloadURL();
 
-    return qrCodeUrl;
+    return barcodeUrl;
   }
 
   void _showErrorMessage(String message) {

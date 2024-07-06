@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../../../../../Core/Firebase/Auth.dart';
 import '../../../../../../Theme/const.dart';
@@ -11,6 +9,7 @@ import '../../../../../../Widgets/components/already_have_an_account_acheck.dart
 import '../../../../../Widgets/components/constants.dart';
 import '../../../Bottom_bar/user_bottombar.dart';
 import '../../Login/login_screen.dart';
+import 'package:barcode/barcode.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({Key? key}) : super(key: key);
@@ -28,50 +27,55 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  void _uploadData(String qrCodeUrl) {
+  void _uploadData(String barcodeUrl) {
     UserDataUploader.uploadUserData(
       name: _nameController.text,
       phone: _phoneController.text,
       email: _emailController.text,
       password: _passwordController.text,
       address: _addressController.text,
-      qrCodeUrl: qrCodeUrl,
+      barcodeUrl: barcodeUrl,
     );
   }
 
-  Future<String> _generateQRCodeAndUpload() async {
-    // Collect user data
-    final userData = {
-      "name": _nameController.text,
-      "phone": _phoneController.text,
-      "email": _emailController.text,
-      "address": _addressController.text,
-      "discount": '0',
-      "permission": 'Denied',
-    };
-    final userDataString = userData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+  Future<String> _generateBarcodeAndUpload() async {
+    try {
+      final userData = {
+        "name": _nameController.text,
+        "phone": _phoneController.text,
+        "email": _emailController.text,
+        "address": _addressController.text,
+        "discount": '0',
+        "permission": 'Denied',
+      };
 
-    final tempDir = await getTemporaryDirectory();
-    final qrCodeFile = File('${tempDir.path}/qr_code.png');
-    final qrValidationPainter = QrPainter(
-      data: userDataString,
-      version: QrVersions.auto,
-      gapless: true,
-    );
+      // Convert user data to a JSON string
+      final userDataString = userData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
 
-    final picData = await qrValidationPainter.toImageData(200);
-    await qrCodeFile.writeAsBytes(picData!.buffer.asUint8List());
+      // Generate the barcode using PDF417
+      final barcode = Barcode.pdf417();
+      final svg = barcode.toSvg(userDataString, width: 200, height: 80);
 
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('qr_codes/${DateTime.now().millisecondsSinceEpoch}.png');
+      // Save the barcode to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      final barcodeFile = File('${tempDir.path}/barcode.svg');
+      await barcodeFile.writeAsString(svg);
 
-    final uploadTask = storageRef.putFile(qrCodeFile);
-    final snapshot = await uploadTask;
-    final qrCodeUrl = await snapshot.ref.getDownloadURL();
+      // Upload the barcode file to Firebase Storage
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('barcodes/${DateTime.now().millisecondsSinceEpoch}.svg');
+      final uploadTask = storageRef.putFile(barcodeFile);
+      final snapshot = await uploadTask;
+      final barcodeUrl = await snapshot.ref.getDownloadURL();
 
-    return qrCodeUrl;
+      return barcodeUrl;
+    } catch (e) {
+      print("Error generating barcode: $e");
+      throw Exception("Failed to generate barcode");
+    }
   }
+
 
   void _signUp() async {
     if (!_formKey.currentState!.validate()) {
@@ -86,7 +90,7 @@ class _SignUpFormState extends State<SignUpForm> {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = userCredential.user;
       if (user != null) {
-        final qrCodeUrl = await _generateQRCodeAndUpload();
+        final barcodeUrl = await _generateBarcodeAndUpload();
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -119,7 +123,7 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
         );
 
-        _uploadData(qrCodeUrl);
+        _uploadData(barcodeUrl);
         print("Data uploaded successfully");
         print("User successfully created");
       } else {
