@@ -145,20 +145,9 @@ class _OrderHistoryState extends State<OrderHistory> {
                   ),
                   title: Text(item.name),
                   subtitle: Text('Quantity: ${item.quantity}'),
-                  trailing: Column(
-                    children: [
-                      Text(
-                        'RM ${order.total}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        order.status,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
+                  trailing: Text(
+                    order.status,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 );
               },

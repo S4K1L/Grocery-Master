@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/painting.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
@@ -196,9 +198,13 @@ class _MembershipState extends State<Membership> {
                                 if (userData['barcodeUrl'] != null)
                                   SvgPicture.network(
                                     userData['barcodeUrl'],
-                                    width: 250,
-                                    height: 250,
+                                    width: MediaQuery.of(context).size.width/1.1,
                                   ),
+                                Text('GroceryMaster',style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: kTextBlackColor,
+                                  fontSize: 18
+                                ),),
                               ],
                             ),
                           ),
