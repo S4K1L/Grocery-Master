@@ -105,7 +105,7 @@ class _OrderHistoryState extends State<OrderHistory> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.white,
+          color: Colors.lightGreen[300],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,7 +123,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                     'Location: ${order.location}',
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Colors.black,
                 ),
               ),
             ),

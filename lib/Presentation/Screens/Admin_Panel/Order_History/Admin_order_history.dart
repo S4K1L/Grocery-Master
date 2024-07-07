@@ -100,11 +100,28 @@ class _AdminOrderHistoryState extends State<AdminOrderHistory> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.white,
+          color: Colors.lightGreen[300],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ListTile(
+              title: Text(
+                'Order ID: ${order.orderId}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                'Total: RM ${order.total.toStringAsFixed(2)}\n'
+                    'Location: ${order.location}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -123,19 +140,9 @@ class _AdminOrderHistoryState extends State<AdminOrderHistory> {
                   ),
                   title: Text(item.name),
                   subtitle: Text('Quantity: ${item.quantity}'),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'ORDER: ${order.orderId}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'RM ${order.total}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
+                  trailing: Text(
+                    order.status,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 );
               },
